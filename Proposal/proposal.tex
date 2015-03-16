@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+
+\newcommand{\HWKtitle}[2]
+{
+	\begin{center}
+	
+	\textbf
+	{
+		#1 \\
+		#2, Semester Project Proposal
+	}
+	
+	\end{center}
+	\medskip
+	\hrule
+	\bigskip
+}
+
+\setlength{\topmargin}{-0.5in}
+\setlength{\evensidemargin}{-0.75in}
+\setlength{\oddsidemargin}{-0.75in}
+\setlength{\textwidth}{7in}
+\setlength{\textheight}{9in}
+
+\begin{document}
+	% Homework header
+    \HWKtitle{Jaysen Spurlock and Paul Blasi}{Natural Computing}
+
+	% Proposal
+    For the semester project, Paul and Jaysen would like to construct a user-guided evolution game.
+
+    This game will have several components, and involve many areas of Natural Computing.
+    \begin{description}
+        \item{\textbf{Core Idea}}
+            The game's basic idea is a multiplayer evolution engine. Each player will take charge of a species, and will have the ability to decide what the
+            reproduction of individuals is based on.
+            
+        \item{\textbf{Visuals}}
+            The visuals for this game will be kept minimal, as the main focus is on the algorithms involved. Each individual will be represented as a pixel in the world,
+            and there will be windows to show all players' stats, as well as modify the user's stats.
+
+        \item{\textbf{Individuals}}
+            Individuals will have a number of attributes that influence how they act in the world. These are the attributes that the user will have control over; that is,
+            the user's control will influence how likely an individual is to reproduce, but will not directly decide how likely the individual is to survive - survival will
+            depend on the individual's actions in the world, as well as the other species that exist.
+
+            The individuals themselves may take the form of BNF representations, which will construct the decision algorithms. Reproduction would then take place based on
+            certain factors, such as proximity and ``attractiveness" (which is decided by the user). Reproduction would be crossover-based.
+
+            Available attributes will be on a tradeoff scale: that is, as the user moves away from one attribute (such as herd mentality) they inherently move toward
+            another (such as loner mentality). In this example, a user can decide to have their individuals seek one another out or avoid one another.
+
+        \item{\textbf{Server}}
+            To fulfill the multiplayer aspect of this game, a central server will be used that clients may connect to (which may be private or public). The server will
+            handle interactions between individuals, while clients will handle decisions that individuals make at each step.
+    \end{description}
+\end{document}
