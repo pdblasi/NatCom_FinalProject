@@ -19,7 +19,8 @@ struct player
     forward_list<int> birth_rates;
     forward_list<int> death_rates;
 
-    // TODO: Add attributes!
+    int herd_mentality;
+    int prey_mentality;
 };
 
 #endif
