@@ -12,6 +12,12 @@ forward_list<player> PLAYERS;
 
 void DEBUG_SETUP();
 
+// Use this to modify the NEXT maps
+void generateNextStep();
+void decayPheromones();
+void moveCritters();
+void handleConflicts();
+
 // Use this to set up the VALID_MAP bool array
 // Also initializes other maps
 void generateMap();

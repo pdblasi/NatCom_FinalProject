@@ -16,8 +16,7 @@ struct position
 struct player
 {
     forward_list<position> critter_positions;
-    forward_list<int> birth_rates;
-    forward_list<int> death_rates;
+    forward_list<int> pop_changes;
 
     int herd_mentality;
     int prey_mentality;

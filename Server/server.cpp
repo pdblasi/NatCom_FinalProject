@@ -33,6 +33,77 @@ void DEBUG_SETUP()
 
             crit = it->critter_positions.emplace_after(crit, x, y);
         }
+
+        auto pop = it->pop_changes.before_begin();
+        for(int j = 0; j < 10; j++)
+        {
+            pop = it->pop_changes.insert_after(pop, rand()%6-rand()%6);
+        }
+
+        it->herd_mentality = rand()%10+1;
+        it->prey_mentality = rand()%10+1;
+    }
+}
+
+void generateNextStep()
+{
+    decayPheromones();
+    moveCritters();
+    handleConflicts();
+}
+
+void decayPheromones()
+{
+    for(int i = 0; i < MAP_HEIGHT; i++)
+    {
+        for(int j = 0; j < MAP_WIDTH; j++)
+        {
+            for(int k = 0; k < NUM_PLAYERS; k++)
+            {
+                PHEROMONE_MAP_NEXT[i][j][k] = PHEROMONE_MAP_NEXT[i][j][k] >> 1;
+            }
+        }
+    }
+}
+
+void moveCritters()
+{
+    int playerNum = 0;
+    for(auto it = PLAYERS.begin();
+        it != PLAYERS.end();
+        it++)
+    {
+        auto end = it->critter_positions.end();
+        for(auto critter = it->critter_positions.begin();
+            critter != end;
+            critter++)
+        {
+            // TODO: Move critter!...somehow.
+            // This should update the values of X and Y in critter.
+        }
+
+        playerNum++;
+    }
+}
+
+void handleConflicts()
+{
+    int playerNum = 0;
+    for(auto it = PLAYERS.begin();
+        it != PLAYERS.end();
+        it++)
+    {
+        auto end = it->critter_positions.end();
+        for(auto critter = it->critter_positions.begin();
+            critter != end;
+            critter++)
+        {
+            // TODO: Handle conflicts!...somehow.
+            // This will modify BOTH lists of critters, so we'll need to be
+            //  a little clever.
+        }
+
+        playerNum++;
     }
 }
 
