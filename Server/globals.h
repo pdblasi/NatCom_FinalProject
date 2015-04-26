@@ -9,13 +9,13 @@ int NUM_PLAYERS = 4;
 bool **VALID_MAP;
 
 // This ~2D~ array of char-arrays tracks pheromones at each place
-char ***PHEROMONE_MAP;
+unsigned char ***PHEROMONE_MAP;
 // Only write to this map! Then copy over.
-char ***PHEROMONE_MAP_NEXT;
+unsigned char ***PHEROMONE_MAP_NEXT;
 
 // This ~2D~ array of char-arrays tracks how many agents exist at each place
-char ***CRITTER_MAP;
+unsigned char ***CRITTER_MAP;
 // Only write to this map! Then copy over.
-char ***CRITTER_MAP_NEXT;
+unsigned char ***CRITTER_MAP_NEXT;
 
 #endif
