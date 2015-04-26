@@ -11,6 +11,7 @@ struct position
     int y;
 
     position(int _x, int _y): x(_x), y(_y) { };
+    position(const position &orig): x(orig.x), y(orig.y) { };
 };
 
 struct player
