@@ -18,7 +18,7 @@ void DEBUG_SETUP()
 {
     auto it = PLAYERS.before_begin();
 
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < NUM_PLAYERS; i++)
     {
         it = PLAYERS.emplace_after(it);
 
@@ -39,27 +39,35 @@ void DEBUG_SETUP()
 void generateMap()
 {
     VALID_MAP = new bool*[MAP_HEIGHT];
-    PHEROMONE_MAP = new long long*[MAP_HEIGHT];
-    PHEROMONE_MAP_NEXT = new long long*[MAP_HEIGHT];
-    CRITTER_MAP = new long long*[MAP_HEIGHT];
-    CRITTER_MAP_NEXT = new long long*[MAP_HEIGHT];
+    PHEROMONE_MAP = new char**[MAP_HEIGHT];
+    PHEROMONE_MAP_NEXT = new char**[MAP_HEIGHT];
+    CRITTER_MAP = new char**[MAP_HEIGHT];
+    CRITTER_MAP_NEXT = new char**[MAP_HEIGHT];
 
     // TODO: Eventually generate a map
     for(int i = 0; i < MAP_HEIGHT; i++)
     {
         VALID_MAP[i] = new bool[MAP_WIDTH];
-        PHEROMONE_MAP[i] = new long long[MAP_WIDTH];
-        PHEROMONE_MAP_NEXT[i] = new long long[MAP_WIDTH];
-        CRITTER_MAP[i] = new long long[MAP_WIDTH];
-        CRITTER_MAP_NEXT[i] = new long long[MAP_WIDTH];
+        PHEROMONE_MAP[i] = new char*[MAP_WIDTH];
+        PHEROMONE_MAP_NEXT[i] = new char*[MAP_WIDTH];
+        CRITTER_MAP[i] = new char*[MAP_WIDTH];
+        CRITTER_MAP_NEXT[i] = new char*[MAP_WIDTH];
 
         for(int j = 0; j < MAP_WIDTH; j++)
         {
             VALID_MAP[i][j] = true;
-            PHEROMONE_MAP[i][j] = 0;
-            PHEROMONE_MAP_NEXT[i][j] = 0;
-            CRITTER_MAP[i][j] = 0;
-            CRITTER_MAP_NEXT[i][j] = 0;
+            PHEROMONE_MAP[i][j] = new char[NUM_PLAYERS];
+            PHEROMONE_MAP_NEXT[i][j] = new char[NUM_PLAYERS];
+            CRITTER_MAP[i][j] = new char[NUM_PLAYERS];
+            CRITTER_MAP_NEXT[i][j] = new char[NUM_PLAYERS];
+
+            for(int k = 0; k < NUM_PLAYERS; k++)
+            {
+                PHEROMONE_MAP[i][j] = 0;
+                PHEROMONE_MAP_NEXT[i][j] = 0;
+                CRITTER_MAP[i][j] = 0;
+                CRITTER_MAP_NEXT[i][j] = 0;
+            }
         }
     }
 }
