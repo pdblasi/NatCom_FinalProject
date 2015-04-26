@@ -9,6 +9,8 @@ struct position
 {
     int x;
     int y;
+
+    position(int _x, int _y): x(_x), y(_y) { };
 };
 
 struct player
