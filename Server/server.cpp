@@ -10,8 +10,9 @@ int main()
     for(int i = 0; i < 10; i++)
     {
         generateNextStep();
+        // TODO: Networky stuff!
+        // Port 35015
     }
-    // TODO: Networky stuff!
     exterminate();
 
     return 0;
@@ -53,6 +54,7 @@ void generateNextStep()
     decayPheromones();
     moveCritters();
     handleConflicts();
+    stepMapsForward();
 }
 
 void decayPheromones()
