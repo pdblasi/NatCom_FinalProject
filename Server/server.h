@@ -2,6 +2,7 @@
 #include "player.h"
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -14,10 +15,15 @@ void DEBUG_SETUP();
 
 // Use this to modify the NEXT maps
 void generateNextStep();
+
 void decayPheromones();
+
 void moveCritters();
 void moveCritter(position &p, int herd, int pred, int playerNum);
+
 void handleConflicts();
+void removeCritter(int playerNum, position critter);
+bool trialByCombat(const player &predator, const player &prey);
 
 // Use this to set up the VALID_MAP bool array
 // Also initializes other maps

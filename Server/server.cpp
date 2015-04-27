@@ -4,7 +4,7 @@ int main()
 {
     srand(time(NULL));
 
-    // TODO: Networky stuff!
+    // TODO: Loady stuff!
     generateMap();
     DEBUG_SETUP();
     for(int i = 0; i < 10; i++)
@@ -29,7 +29,7 @@ void DEBUG_SETUP()
         int voff = rand() % (MAP_HEIGHT - 10) + 1;
         auto crit = it->critter_positions.before_begin();
 
-        for(int j = 0; j < 300; j++)
+        for(int j = 0; j < 3000; j++)
         {
             int x = voff + rand() % 10;
             int y = hoff + rand() % 10;
@@ -43,8 +43,8 @@ void DEBUG_SETUP()
             pop = it->pop_changes.insert_after(pop, rand()%6-rand()%6);
         }
 
-        it->herd_mentality = rand()%10+1;
-        it->prey_mentality = rand()%10+1;
+        it->herd_mentality = rand()%11-5;
+        it->prey_mentality = rand()%11-5;
     }
 }
 
@@ -227,17 +227,158 @@ void handleConflicts()
         it != PLAYERS.end();
         it++)
     {
-        auto end = it->critter_positions.end();
         for(auto critter = it->critter_positions.begin();
-            critter != end;
+            critter != it->critter_positions.end();
             critter++)
         {
-            // TODO: Handle conflicts!...somehow.
-            // This will modify BOTH lists of critters, so we'll need to be
-            //  a little clever.
+            unsigned char *num_runs = CRITTER_MAP[critter->x][critter->y];
+
+            for(int i = playerNum+1; i < NUM_PLAYERS; i++)
+            {
+                unsigned char us = num_runs[playerNum];
+                unsigned char them = num_runs[i];
+
+                if(them > 0)
+                {
+                    unsigned char min;
+                    if(them > us)
+                        min = us;
+                    else
+                        min = them;
+
+                    auto it2 = next(it, i-playerNum);
+                    if(it2->prey_mentality > it->prey_mentality)
+                    {
+                        for(int n = 0; n < min; n++)
+                        {
+                            if((rand()%1000)/1000.0 < it->vision)
+                            {
+                                if(trialByCombat(*it, *it2))
+                                {
+                                    removeCritter(i, *critter);
+                                }
+                                else
+                                {
+                                    removeCritter(playerNum, *critter);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for(int n = 0; n < min; n++)
+                        {
+                            if((rand()%1000)/1000.0 < it->vision)
+                            {
+                                if(trialByCombat(*it2, *it))
+                                {
+                                    removeCritter(playerNum, *critter);
+                                }
+                                else
+                                {
+                                    removeCritter(i, *critter);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         playerNum++;
+    }
+}
+
+bool trialByCombat(const player &predator, const player &prey)
+{
+    int chance = rand() % (3 * predator.vision) + 1;
+    float win = (rand() % 1000) / 1000.0f;
+
+    if(prey.vision > chance)
+    {
+        if(predator.flight_mentality < 0)
+        {
+            // strength
+            if( (-prey.flight_mentality + 5) / 10 > win )
+            {
+                // kill pred
+                return false;
+            }
+            else
+            {
+                // kill prey
+                return true;
+            }
+        }
+        else
+        {
+            // speed
+            if( (prey.flight_mentality + 5) / 10 > win)
+            {
+                // kill pred
+                return false;
+            }
+            else
+            {
+                // kill prey
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if(prey.flight_mentality < 0)
+        {
+            // strength
+            if( (-predator.flight_mentality + 5) / 10 > win)
+            {
+                // kill prey
+                return true;
+            }
+            else
+            {
+                // kill pred
+                return false;
+            }
+        }
+        else
+        {
+            // speed
+            if( (predator.flight_mentality + 5) / 10 > win)
+            {
+                // kill prey
+                return true;
+            }
+            else
+            {
+                // kill pred
+                return false;
+            }
+        }
+    }
+}
+
+void removeCritter(int playerNum, position critter)
+{
+    auto player = PLAYERS.begin();
+    int i = 0;
+
+    while(i < playerNum)
+    {
+        i++;
+        player++;
+    }
+
+    for(auto c1 = player->critter_positions.before_begin(),
+             c2 = player->critter_positions.begin();
+        c2 != player->critter_positions.end();
+        ++c1, ++c2)
+    {
+        if((*c2) == critter)
+        {
+            player->critter_positions.erase_after(c1);
+            break;
+        }
     }
 }
 
