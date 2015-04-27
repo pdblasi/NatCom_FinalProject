@@ -118,87 +118,83 @@ void moveCritter(position &p, int herd, int pred, int playerNum)
     forward_list<square> squares;
     auto it = squares.before_begin();
 
+    int abs_min = 2550; // 255 * 5 * 2
     c.odds = herd * PHEROMONE_MAP[c.x][c.y][playerNum]
-             + pred * getMaxPheromones(c.x, c.y, playerNum);
-    int min = c.odds;
+             + pred * getMaxPheromones(c.x, c.y, playerNum)
+             + abs_min;
+    float tot = c.odds;
     it = squares.insert_after(it, c);
     if(VALID_MAP[ul.x][ul.y])
     {
         ul.odds = herd * PHEROMONE_MAP[ul.x][ul.y][playerNum]
-                 + pred * getMaxPheromones(ul.x, ul.y, playerNum);
+                 + pred * getMaxPheromones(ul.x, ul.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, ul);
 
-        if(ul.odds < min)
-            min = ul.odds;
+        tot += ul.odds;
     }
     if(VALID_MAP[u.x][u.y])
     {
         u.odds = herd * PHEROMONE_MAP[u.x][u.y][playerNum]
-                 + pred * getMaxPheromones(u.x, u.y, playerNum);
+                 + pred * getMaxPheromones(u.x, u.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, u);
 
-        if(u.odds < min)
-            min = u.odds;
+        tot += u.odds;
     }
     if(VALID_MAP[ur.x][ur.y])
     {
         ur.odds = herd * PHEROMONE_MAP[ur.x][ur.y][playerNum]
-                 + pred * getMaxPheromones(ur.x, ur.y, playerNum);
+                 + pred * getMaxPheromones(ur.x, ur.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, ur);
 
-        if(ur.odds < min)
-            min = ur.odds;
+        tot += ur.odds;
     }
     if(VALID_MAP[l.x][l.y])
     {
         l.odds = herd * PHEROMONE_MAP[l.x][l.y][playerNum]
-                 + pred * getMaxPheromones(l.x, l.y, playerNum);
+                 + pred * getMaxPheromones(l.x, l.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, l);
 
-        if(l.odds < min)
-            min = l.odds;
+        tot += l.odds;
     }
     if(VALID_MAP[r.x][r.y])
     {
         r.odds = herd * PHEROMONE_MAP[r.x][r.y][playerNum]
-                 + pred * getMaxPheromones(r.x, r.y, playerNum);
+                 + pred * getMaxPheromones(r.x, r.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, r);
 
-        if(r.odds < min)
-            min = r.odds;
+        tot += r.odds;
     }
     if(VALID_MAP[dl.x][dl.y])
     {
         dl.odds = herd * PHEROMONE_MAP[dl.x][dl.y][playerNum]
-                 + pred * getMaxPheromones(dl.x, dl.y, playerNum);
+                 + pred * getMaxPheromones(dl.x, dl.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, dl);
 
-        if(dl.odds < min)
-            min = dl.odds;
+        tot += dl.odds;
     }
     if(VALID_MAP[d.x][d.y])
     {
         d.odds = herd * PHEROMONE_MAP[d.x][d.y][playerNum]
-                 + pred * getMaxPheromones(d.x, d.y, playerNum);
+                 + pred * getMaxPheromones(d.x, d.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, d);
 
-        if(d.odds < min)
-            min = d.odds;
+        tot += d.odds;
     }
     if(VALID_MAP[dr.x][dr.y])
     {
         dr.odds = herd * PHEROMONE_MAP[dr.x][dr.y][playerNum]
-                 + pred * getMaxPheromones(dr.x, dr.y, playerNum);
+                 + pred * getMaxPheromones(dr.x, dr.y, playerNum)
+                 + abs_min;
         it = squares.insert_after(it, dr);
 
-        if(dr.odds < min)
-            min = dr.odds;
-    }
-
-    float total = 0.000001;
-    for(it = squares.begin(); it != squares.end(); ++it)
-    {
-        total += it->odds -= min;
+        tot += dr.odds;
     }
 
     float roul = (rand() % 1000) / 1000.0f;
@@ -206,7 +202,7 @@ void moveCritter(position &p, int herd, int pred, int playerNum)
 
     for(it = squares.begin(); it != squares.end(); ++it)
     {
-        running += it->odds / total;
+        running += it->odds / tot;
         if(running >= roul)
             break;
     }
