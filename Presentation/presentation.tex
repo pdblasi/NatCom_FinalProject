@@ -67,22 +67,67 @@ There are four pairs of traits that are mutually exclusive, \hfill
 \section{Server}
 \begin{frame}{Server}
 \begin{itemize}
+    \item Representation
 	\item Movement
 	\item Sensing
 	\item Competition
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Movement}
+\begin{frame}{Representation}
+\begin{itemize}
+    \item List of players
+    \pause
+    \item Array for valid map positions
+        \\ - \textit{Borrowing some ideas from fractal landscapes...}
+    \pause
+    \item Array for pheromone values
+        \\ - \textit{Commandeering some ideas from ACO...}
+    \pause
+    \item Array for critter positions
+        \\ - \textit{Stealing a concept from CA...}
+        \\ - For speed's sake, we also keep a list of positions with each player.
+\end{itemize}
+\end{frame}
 
+\begin{frame}{Movement}
+\begin{itemize}
+    \item Pick Square
+        \\ - Odds based on Herd/Solitary v. species pheromones, as well as Prey/Predator v. other pheromones
+    \pause
+    \item Move Critter
+        \\ - Update various positions
+    \pause
+    \item Update Pheromones
+        \\ - Shift value right 1, OR with 128
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Sensing}
-
+\begin{itemize}
+    \item Determine Predator
+        \\ - Higher Predatory rating wins this one; if they're matched, we
+            pick at random.
+    \pause
+    \item Determine sensitivity
+        \\ - Perform a ``luck check" against the predator's senses to
+            determine whether an encounter happens.
+    \pause
+    \item Determine wariness
+        \\ - Another luck check, to see whether the prey reacts first.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Competition}
-
+\begin{itemize}
+    \item Combat style (Speed or Strength)
+        \\ - Determined by winner of second luck check
+    \pause
+    \item TO THE DEATH!
+        \\ - The loser of the final luck check dies.
+        \pause
+        \\ - We assume the prey are REALLY good at counter-attacks.
+\end{itemize}
 \end{frame}
 
 \section{Client}
