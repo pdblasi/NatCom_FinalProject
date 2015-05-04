@@ -1,5 +1,5 @@
-#ifndef __SERVER_H__
-#define __SERVER_H__
+#ifndef __SERVER_ENGINE_H__
+#define __SERVER_ENGINE_H__
 
 #include "player.h"
 #include <cstdlib>
