@@ -1,24 +1,52 @@
-#include "server.h"
+#include "ServerEngine.h"
 
-int main()
+// ~~~ Public Methods ~~~
+
+ServerEngine::ServerEngine()
 {
     srand(time(NULL));
 
-    // TODO: Loady stuff!
     generateMap();
     DEBUG_SETUP();
-    for(int i = 0; i < 10; i++)
-    {
-        generateNextStep();
-        // TODO: Networky stuff!
-        // Port 35015
-    }
-    exterminate();
-
-    return 0;
 }
 
-void DEBUG_SETUP()
+ServerEngine::~ServerEngine()
+{
+    for(int i = 0; i < MAP_HEIGHT; i++)
+    {
+        for(int j = 0; j < MAP_WIDTH; j++)
+        {
+            delete [] PHEROMONE_MAP[i][j];
+            delete [] PHEROMONE_MAP_NEXT[i][j];
+            delete [] CRITTER_MAP[i][j];
+            delete [] CRITTER_MAP_NEXT[i][j];
+        }
+
+        delete [] VALID_MAP[i];
+        delete [] PHEROMONE_MAP[i];
+        delete [] PHEROMONE_MAP_NEXT[i];
+        delete [] CRITTER_MAP[i];
+        delete [] CRITTER_MAP_NEXT[i];
+    }
+
+    delete [] VALID_MAP;
+    delete [] PHEROMONE_MAP;
+    delete [] PHEROMONE_MAP_NEXT;
+    delete [] CRITTER_MAP;
+    delete [] CRITTER_MAP_NEXT;
+}
+
+void ServerEngine::generateNextStep()
+{
+    decayPheromones();
+    moveCritters();
+    handleConflicts();
+    stepMapsForward();
+}
+
+// ~~~ Private Methods ~~~
+
+void ServerEngine::DEBUG_SETUP()
 {
     auto it = PLAYERS.before_begin();
 
@@ -49,15 +77,7 @@ void DEBUG_SETUP()
     }
 }
 
-void generateNextStep()
-{
-    decayPheromones();
-    moveCritters();
-    handleConflicts();
-    stepMapsForward();
-}
-
-void decayPheromones()
+void ServerEngine::decayPheromones()
 {
     for(int i = 0; i < MAP_HEIGHT; i++)
     {
@@ -71,7 +91,7 @@ void decayPheromones()
     }
 }
 
-void moveCritters()
+void ServerEngine::moveCritters()
 {
     int playerNum = 0;
     for(auto it = PLAYERS.begin();
@@ -90,7 +110,7 @@ void moveCritters()
     }
 }
 
-int getMaxPheromones(int x, int y, int excludePlayer)
+int ServerEngine::getMaxPheromones(int x, int y, int excludePlayer)
 {
     int max = 0;
 
@@ -103,7 +123,7 @@ int getMaxPheromones(int x, int y, int excludePlayer)
     return max;
 }
 
-void moveCritter(position &p, int herd, int pred, int playerNum)
+void ServerEngine::moveCritter(position &p, int herd, int pred, int playerNum)
 {
     square ul(p.x-1, p.y-1);
     square u(p.x, p.y-1);
@@ -218,7 +238,7 @@ void moveCritter(position &p, int herd, int pred, int playerNum)
     PHEROMONE_MAP_NEXT[p.x][p.y][playerNum] = (PHEROMONE_MAP_NEXT[p.x][p.y][playerNum] >> 1) | 128;
 }
 
-void handleConflicts()
+void ServerEngine::handleConflicts()
 {
     int playerNum = 0;
     for(auto it = PLAYERS.begin();
@@ -287,7 +307,7 @@ void handleConflicts()
     }
 }
 
-bool trialByCombat(const player &predator, const player &prey)
+bool ServerEngine::trialByCombat(const player &predator, const player &prey)
 {
     int chance = rand() % (3 * predator.vision) + 1;
     float win = (rand() % 1000) / 1000.0f;
@@ -356,7 +376,7 @@ bool trialByCombat(const player &predator, const player &prey)
     }
 }
 
-void removeCritter(int playerNum, position critter)
+void ServerEngine::removeCritter(int playerNum, position critter)
 {
     auto player = PLAYERS.begin();
     int i = 0;
@@ -380,7 +400,7 @@ void removeCritter(int playerNum, position critter)
     }
 }
 
-void generateMap()
+void ServerEngine::generateMap()
 {
     VALID_MAP = new bool*[MAP_HEIGHT];
     PHEROMONE_MAP = new unsigned char**[MAP_HEIGHT];
@@ -417,7 +437,7 @@ void generateMap()
     }
 }
 
-void stepMapsForward()
+void ServerEngine::stepMapsForward()
 {
     for(int i = 0; i < MAP_HEIGHT; i++)
     {
@@ -430,30 +450,4 @@ void stepMapsForward()
             }
         }
     }
-}
-
-void exterminate()
-{
-    for(int i = 0; i < MAP_HEIGHT; i++)
-    {
-        for(int j = 0; j < MAP_WIDTH; j++)
-        {
-            delete [] PHEROMONE_MAP[i][j];
-            delete [] PHEROMONE_MAP_NEXT[i][j];
-            delete [] CRITTER_MAP[i][j];
-            delete [] CRITTER_MAP_NEXT[i][j];
-        }
-
-        delete [] VALID_MAP[i];
-        delete [] PHEROMONE_MAP[i];
-        delete [] PHEROMONE_MAP_NEXT[i];
-        delete [] CRITTER_MAP[i];
-        delete [] CRITTER_MAP_NEXT[i];
-    }
-
-    delete [] VALID_MAP;
-    delete [] PHEROMONE_MAP;
-    delete [] PHEROMONE_MAP_NEXT;
-    delete [] CRITTER_MAP;
-    delete [] CRITTER_MAP_NEXT;
 }

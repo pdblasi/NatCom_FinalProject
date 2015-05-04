@@ -1,9 +1,9 @@
+#ifndef __PLAYER_H__
+#define __PLAYER_H__
+
 #include <forward_list>
 
 using namespace std;
-
-#ifndef __PLAYER_H__
-#define __PLAYER_H__
 
 struct position
 {
