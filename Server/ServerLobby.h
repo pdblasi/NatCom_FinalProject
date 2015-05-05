@@ -9,6 +9,10 @@ using namespace std;
 class ServerLobby
 {
     public:
+    ServerLobby();
+    ~ServerLobby();
+
+    void setUpGame(ServerComm &comm);
 
     private:
 };
