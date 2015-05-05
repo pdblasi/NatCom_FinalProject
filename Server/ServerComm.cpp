@@ -25,3 +25,16 @@ void ServerComm::sendBytes(int outsock, void *bytes, int numBytes)
         sentBytes += nextChunk;
     }
 }
+
+void ServerComm::broadcastBytes(void *bytes, int numBytes)
+{
+    for(auto player : m_players)
+    {
+        sendBytes(player, bytes, numBytes);
+    }
+}
+
+void ServerComm::addPlayerSocket(int playerSock)
+{
+    m_players.push_front(playerSock);
+}

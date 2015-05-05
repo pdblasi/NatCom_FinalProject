@@ -2,6 +2,7 @@
 #define __SERVER_ENGINE_H__
 
 #include "player.h"
+#include <forward_list>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
