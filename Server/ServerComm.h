@@ -16,6 +16,8 @@ class ServerComm
     void broadcastBytes(void *bytes, int numBytes);
 
     void addPlayerSocket(int playerSock);
+    void removePlayerSocket(int playerSock);
+    forward_list<int>::iterator playerList();
 
     private:
     forward_list<int> m_players;
