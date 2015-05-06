@@ -190,6 +190,7 @@ bool ServerLobby::tryCountdown()
         timer--;
         string time = to_string(timer);
         m_comm->broadcastPacket(HEADER_TYPE_READY, time.length(), time.c_str());
+        cout << time << endl;
 
         m_tempreadfds = m_readfds;
         sleep(1);

@@ -91,6 +91,7 @@ class Client:
 
     def _startEngine(self):
         while not self.finished:
+            print "Producing another generation."
             d_pop = len(self.population.population)
             self.population.next_generation()
             d_pop = len(self.population.population) - d_pop

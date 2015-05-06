@@ -5,7 +5,7 @@ class ServerLobby(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.initUI()
-        self.parent.client.start(self.onReady, self.onPlayerUpdates, None, None, None)
+        self.parent.client.start(self.onReady, self.onPlayerUpdates, None, None)
         self.pack(anchor='c', expand=True)
 
     def initUI(self):
