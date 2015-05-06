@@ -51,7 +51,7 @@ bool ServerEngine::generateNextStep()
     int winner = checkWinner();
     if(winner != -1)
     {
-        // TODO: Handle winner
+        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, 4, (void*)&winner);
 
         return true;
     }
