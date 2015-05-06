@@ -9,6 +9,7 @@
 #include <string>
 #include <strings.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "ServerComm.h"
@@ -27,8 +28,12 @@ class ServerLobby
     private:
     ServerComm *m_comm;
     forward_list<bool> readiness;
+    int m_numfds;
+    fd_set m_readfds;
+    fd_set m_tempreadfds;
 
     void addPlayerReadiness();
+    void checkFds();
 };
 
 #endif
