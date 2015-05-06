@@ -8,7 +8,8 @@ ServerLobby::ServerLobby(ServerComm *comm)
 bool ServerLobby::acceptMode()
 {
     // Create variables
-    int acceptSock = socket(AF_INET, SOCK_STREAM, O_NONBLOCK);
+    int acceptSock = socket(AF_INET, SOCK_STREAM, 0);
+    fcntl(acceptSock, F_SETFL, O_NONBLOCK);
     struct sockaddr_in serv_addr, cli_addr;
 
     // Set up serv_addr
@@ -26,20 +27,27 @@ bool ServerLobby::acceptMode()
     do
     {
         int newSock = accept(acceptSock, (struct sockaddr *)&cli_addr, &clilen);
-        
-        m_comm->addPlayerSocket(newSock);
-        addPlayerReadiness();
-    } while(!checkIfReady() && !tryCountdown());
+
+        if(newSock > 0)
+        {
+            cout << "New Player!" << endl;
+            fcntl(newSock, F_SETFL, O_NONBLOCK);
+            
+            m_comm->addPlayerSocket(newSock);
+            addPlayerReadiness();
+        }
+    } while(!checkIfReady() || !tryCountdown());
 
     close(acceptSock);
 }
 
 bool ServerLobby::tryCountdown()
 {
-    int timer = 10;
+    int timer = 11;
 
     do
     {
+        timer--;
         string time = to_string(timer);
         m_comm->broadcastBytes(time.c_str(), time.length());
         sleep(1);
@@ -50,6 +58,9 @@ bool ServerLobby::tryCountdown()
 
 bool ServerLobby::checkIfReady()
 {
+    if(m_comm->numPlayers() == 0)
+        return false;
+
     bool result = readiness.begin() != readiness.end();
     auto player = m_comm->playerList();
     auto ready = readiness.begin();
@@ -62,10 +73,16 @@ bool ServerLobby::checkIfReady()
         int res = recv(*player, (void*)curReady, 1, 0);
         if(res == 1)
         {
+            cout << "Readiness read!" << endl;
             *ready = curReady[0];
+            if(*ready)
+                cout << " Ready." << endl;
+            else
+                cout << " No-go." << endl;
         }
         else if(res == 0 || errno != EWOULDBLOCK)
         {
+            cout << "Player lost!" << endl;
             m_comm->removePlayerSocket(*player);
             readiness.erase_after(tracker);
 

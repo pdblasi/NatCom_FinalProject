@@ -40,16 +40,47 @@ ServerEngine::~ServerEngine()
     delete [] CRITTER_MAP_NEXT;
 }
 
-void ServerEngine::generateNextStep()
+bool ServerEngine::generateNextStep()
 {
     updatePlayerStatuses();
     decayPheromones();
     moveCritters();
     handleConflicts();
     stepMapsForward();
+
+    int winner = checkWinner();
+    if(winner != -1)
+    {
+        // TODO: Handle winner
+
+        return true;
+    }
+
+    // TODO: Send population updates
+    // TODO: Broadcast map
+    // TODO: Broadcast player data
+
+    return false;
 }
 
 // ~~~ Private Methods ~~~
+
+int ServerEngine::checkWinner()
+{
+    int i = 0;
+
+    for(auto player : PLAYERS)
+    {
+        if(float(player.tot_pop) / m_totalPopulation > 0.799)
+        {
+            return i;
+        }
+
+        i++;
+    }
+
+    return -1;
+}
 
 void ServerEngine::DEBUG_SETUP()
 {
@@ -110,12 +141,27 @@ void ServerEngine::updatePlayerStatuses()
                     >> p->flight_mentality
                     >> p->lifespan
                     >> p->vision;
+
+                p->tot_pop += p->pop_change;
+                m_totalPopulation += p->pop_change;
             }
         }
 
         it++;
         p++;
         i++;
+    }
+}
+
+void ServerEngine::sendPlayerUpdates()
+{
+    auto it = m_comm->playerList();
+    for(auto player : PLAYERS)
+    {
+        player.tot_pop += player.pop_change;
+        m_comm->sendBytes(*it, (void*)&(player.tot_pop), 4);
+
+        it++;
     }
 }
 
@@ -283,6 +329,12 @@ void ServerEngine::moveCritter(position &p, int herd, int pred, int playerNum)
 void ServerEngine::handleConflicts()
 {
     int playerNum = 0;
+
+    for(auto player : PLAYERS)
+    {
+        player.pop_change = 0;
+    }
+
     for(auto it = PLAYERS.begin();
         it != PLAYERS.end();
         it++)
@@ -421,13 +473,8 @@ bool ServerEngine::trialByCombat(const player &predator, const player &prey)
 void ServerEngine::removeCritter(int playerNum, position critter)
 {
     auto player = PLAYERS.begin();
-    int i = 0;
 
-    while(i < playerNum)
-    {
-        i++;
-        player++;
-    }
+    advance(player, playerNum);
 
     for(auto c1 = player->critter_positions.before_begin(),
              c2 = player->critter_positions.begin();
@@ -440,6 +487,8 @@ void ServerEngine::removeCritter(int playerNum, position critter)
             break;
         }
     }
+
+    player->pop_change--;
 }
 
 void ServerEngine::generateMap()

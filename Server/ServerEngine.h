@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <iterator>
 #include <sstream>
 #include "player.h"
 #include "ServerComm.h"
@@ -19,12 +20,13 @@ class ServerEngine
     public:
     ServerEngine(ServerComm *comm);
     ~ServerEngine();
-    void generateNextStep();
+    bool generateNextStep();
     
     private:
         ServerComm *m_comm;
         forward_list<player> PLAYERS;
         int NUM_PLAYERS;
+        int m_totalPopulation;
         // Tracks valid positions on the map
         bool **VALID_MAP;
         // Tracks each position's pheromones for each player
@@ -46,6 +48,7 @@ class ServerEngine
     void DEBUG_SETUP();
 
     void updatePlayerStatuses();
+    void sendPlayerUpdates();
 
     void decayPheromones();
     void moveCritters();
@@ -55,6 +58,8 @@ class ServerEngine
     void handleConflicts();
     void removeCritter(int playerNum, position critter);
     bool trialByCombat(const player &predator, const player &prey);
+
+    int checkWinner();
 
     void loadConfigData();
 

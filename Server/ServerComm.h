@@ -4,12 +4,15 @@
 #include <forward_list>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 using namespace std;
 
 class ServerComm
 {
     public:
+    ~ServerComm();
+
     void* getBytes(int insock, int numBytes);
     void sendBytes(int outsock, const void *bytes, int numBytes);
 

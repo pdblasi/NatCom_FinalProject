@@ -1,5 +1,13 @@
 #include "ServerComm.h"
 
+ServerComm::~ServerComm()
+{
+    for(auto player : m_players)
+    {
+        close(player);
+    }
+}
+
 void* ServerComm::getBytes(int insock, int numBytes)
 {
     char *buffer = new char[numBytes];
@@ -69,7 +77,7 @@ forward_list<int>::iterator ServerComm::playerList()
     return m_players.begin();
 }
 
-int numPlayers()
+int ServerComm::numPlayers()
 {
     return m_numPlayers;
 }
