@@ -1,22 +1,28 @@
 #ifndef __SERVER_ENGINE_H__
 #define __SERVER_ENGINE_H__
 
-#include "player.h"
+#include <algorithm>
 #include <forward_list>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <cstring>
+#include <fstream>
+#include <sstream>
+#include "player.h"
+#include "ServerComm.h"
 
 using namespace std;
 
 class ServerEngine
 {
     public:
-    ServerEngine();
+    ServerEngine(ServerComm *comm);
     ~ServerEngine();
     void generateNextStep();
     
     private:
+        ServerComm *m_comm;
         forward_list<player> PLAYERS;
         int NUM_PLAYERS;
         // Tracks valid positions on the map
@@ -38,6 +44,8 @@ class ServerEngine
     void stepMapsForward();
 
     void DEBUG_SETUP();
+
+    void updatePlayerStatuses();
 
     void decayPheromones();
     void moveCritters();

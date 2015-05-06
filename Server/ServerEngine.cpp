@@ -2,9 +2,12 @@
 
 // ~~~ Public Methods ~~~
 
-ServerEngine::ServerEngine()
+ServerEngine::ServerEngine(ServerComm *comm)
 {
     srand(time(NULL));
+
+    m_comm = comm;
+    NUM_PLAYERS = m_comm->numPlayers();
 
     generateMap();
     loadConfigData();
@@ -39,6 +42,7 @@ ServerEngine::~ServerEngine()
 
 void ServerEngine::generateNextStep()
 {
+    updatePlayerStatuses();
     decayPheromones();
     moveCritters();
     handleConflicts();
@@ -67,14 +71,51 @@ void ServerEngine::DEBUG_SETUP()
             crit = it->critter_positions.emplace_after(crit, x, y);
         }
 
-        auto pop = it->pop_changes.before_begin();
-        for(int j = 0; j < 10; j++)
-        {
-            pop = it->pop_changes.insert_after(pop, rand()%6-rand()%6);
-        }
-
         it->herd_mentality = rand()%11-5;
         it->prey_mentality = rand()%11-5;
+    }
+}
+
+void ServerEngine::updatePlayerStatuses()
+{
+    auto it = m_comm->playerList();
+    auto p = PLAYERS.begin();
+    int i = 0;
+
+    while(i < NUM_PLAYERS)
+    {
+        int *l = (int*)m_comm->getBytes(*it, 4);
+
+        if(l != NULL)
+        {
+            int len = *l;
+            delete [] l;
+
+            char *m = (char*)m_comm->getBytes(*it, len);
+
+            if(m != NULL)
+            {
+                char *msg = new char[len+1];
+                strncpy(msg, m, len);
+                delete [] m;
+                msg[len] = 0;
+                string message(msg);
+                delete [] msg;
+
+                stringstream strm;
+                strm.str(message);
+                strm >> p->pop_change
+                    >> p->herd_mentality
+                    >> p->prey_mentality
+                    >> p->flight_mentality
+                    >> p->lifespan
+                    >> p->vision;
+            }
+        }
+
+        it++;
+        p++;
+        i++;
     }
 }
 
@@ -310,7 +351,7 @@ void ServerEngine::handleConflicts()
 
 bool ServerEngine::trialByCombat(const player &predator, const player &prey)
 {
-    int chance = rand() % (3 * predator.vision) + 1;
+    int chance = rand() % int(3 * predator.vision) + 1;
     float win = (rand() % 1000) / 1000.0f;
 
     if(prey.vision > chance)

@@ -18,9 +18,11 @@ class ServerComm
     void addPlayerSocket(int playerSock);
     void removePlayerSocket(int playerSock);
     forward_list<int>::iterator playerList();
+    int numPlayers();
 
     private:
     forward_list<int> m_players;
+    int m_numPlayers = 0;
 };
 
 #endif

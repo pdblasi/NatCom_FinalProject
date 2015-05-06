@@ -55,14 +55,21 @@ void ServerComm::addPlayerSocket(int playerSock)
         while(next(it) != m_players.end()) it++;
         m_players.insert_after(it, playerSock);
     }
+    m_numPlayers++;
 }
 
 void ServerComm::removePlayerSocket(int playerSock)
 {
     m_players.remove(playerSock);
+    m_numPlayers--;
 }
 
 forward_list<int>::iterator ServerComm::playerList()
 {
     return m_players.begin();
+}
+
+int numPlayers()
+{
+    return m_numPlayers;
 }

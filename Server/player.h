@@ -22,12 +22,13 @@ struct position
 struct player
 {
     forward_list<position> critter_positions;
-    forward_list<int> pop_changes;
+    int pop_change;
 
-    int herd_mentality; // -5 to +5
-    int prey_mentality; // -5 to +5
-    int vision; // 1 to 5
-    int flight_mentality; // -5 to +5
+    float herd_mentality; // -5 to +5
+    float prey_mentality; // -5 to +5
+    float vision; // 1 to 5
+    float flight_mentality; // -5 to +5
+    float lifespan; // -5 to +5
 };
 
 #endif
