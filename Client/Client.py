@@ -1,5 +1,9 @@
 import thread
+import Queue
 from socket import *
+from select import select
+import time
+from ctypes import *
 
 class Client:
     PORT = 35015
@@ -10,6 +14,9 @@ class Client:
         self.HOST = ip
         self.socket = socket()
         self.socket.connect((self.HOST, self.PORT))
+        self.socket.setblocking(0)
+        self.ready = False
+        self.messages = Queue.Queue(10)
 
     def lobby(self, onMessage, onStart):
         self.onMessage = onMessage
@@ -19,20 +26,33 @@ class Client:
         self.socket.close()
         self.onClose()
 
-    def ready(ready):
-        return
+    def set_ready(self, ready):
+        self.ready = ready
+        self.messages.put([bytearray(c_bool(self.ready))])
 
     def _lobbyHandler(self):
-        data = self.socket.recv(self.BUFFER)
-        self.onMessage(data)
+        while 1:
+            try:
+                data = self.socket.recv(self.BUFFER)
+                if len(data) > 0:
+                    self.onMessage(data)
+            except:
+                pass
+            try:
+                if not self.messages.empty():
+                    message = self.messages.get()
+
+                    self.socket.send(message[0])
+                    if len(message) == 2:
+                        self.socket.send(message[1])
+            except:
+                pass
+            time.sleep(0.1)
         
 
 if __name__ == '__main__':
     def onMessage(data):
-        print data
-        success = input("Quit? y/n: ")
-        if success == "y":
-            client.close()
+        print '\t', data
 
     def onClose():
         print "Socket closed."
@@ -41,5 +61,10 @@ if __name__ == '__main__':
     def onStart():
         return
 
-    client = Client("192.168.1.114", onClose)
+    client = Client("192.168.1.105", onClose)
     client.lobby(onMessage, onStart)
+
+    while str(raw_input("Change ready? y/n: ")) == "y":
+        client.set_ready(not client.ready)
+
+    client.close()
