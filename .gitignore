@@ -1,3 +1,10 @@
 Presentation/build/presentation.pdf
+*.swp
 *.o
 *.pyc
+*.log
+*.lof
+*.out
+*.toc
+*.aux
+*.pdf

@@ -1,0 +1,45 @@
+\documentclass[table]{book}
+
+\input{paperstyle.tex}
+
+\title{{\rule{\linewidth}{0.5mm}}\\[2mm]{\huge\bfseries Final Project}\\[-1mm]{\rule{\linewidth}{0.5mm}} \\  \vfill
+{\LARGE \bfseries Natural Computing Homework}\vfill}
+\author{Paul Blasi \and Jaysen Spurlock}
+\date{\today}
+
+
+\begin{document}
+
+\frontmatter
+
+\addcontentsline{toc}{chapter}{Title}
+\maketitle
+\tableofcontents
+\addcontentsline{toc}{chapter}{Contents}
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+
+\chapter{Document Preparation and Updates}
+\input{preparation.tex}
+
+\mainmatter
+
+% ~~~~~
+
+% Complete problem statement
+\input{problem.tex}
+
+% Background and literature review
+\input{background.tex}
+
+% Problem solution
+\input{solution.tex}
+
+% ~~~~~
+
+\appendix
+
+% Code
+\input{code.tex}
+
+\end{document}
