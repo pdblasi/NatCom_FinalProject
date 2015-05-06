@@ -42,6 +42,8 @@ class ServerLobby
     bool checkIfReady();
     void addPlayer();
     void checkFds();
+    string getPlayerList();
+    void updatePlayerIndices();
 };
 
 #endif

@@ -52,7 +52,7 @@ bool ServerLobby::acceptMode()
                 m_numfds = newSock + 1;
 
             string num = to_string(m_comm->numPlayers() - 1);
-            m_comm->sendPacket(newSock, HEADER_TYPE_INDEX, num.length(), num.c_str());
+            updatePlayerIndices();
         }
     } while(!checkIfReady() || !tryCountdown());
 
@@ -104,7 +104,40 @@ void ServerLobby::checkFds()
 
     if(reorder)
     {
-        // TODO: Send out new indices
+        updatePlayerIndices();
+    }
+}
+
+string ServerLobby::getPlayerList()
+{
+    string list = "[";
+    auto player = m_players.begin();
+
+    for(int i = 0; i < m_comm->numPlayers(); i++, player++)
+    {
+        if(i > 0)
+            list += ",";
+
+        list += "(";
+        list += to_string(i);
+        list += ",";
+//        list += player->color;
+        list += ")";
+    }
+    list += "]";
+
+    return list;
+}
+
+void ServerLobby::updatePlayerIndices()
+{
+    string list = getPlayerList();
+    auto it = m_comm->playerList();
+
+    for(int i = 0; i < m_comm->numPlayers(); i++, it++)
+    {
+        string msg = "[" + to_string(i) + "," + list + "]";
+        m_comm->sendPacket(*it, HEADER_TYPE_PLAYER_UPDATES, msg.length(), (void*)msg.c_str());
     }
 }
 
