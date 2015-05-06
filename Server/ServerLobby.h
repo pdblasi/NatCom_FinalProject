@@ -7,6 +7,7 @@
 #include <forward_list>
 #include <netinet/in.h>
 #include <string>
+#include <string.h>
 #include <strings.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -24,6 +25,18 @@ class ServerLobby
     {
         bool ready;
         char *color;
+
+        connectedPlayer()
+        {
+            ready = false;
+            color = new char[8];
+            color[0] = '\0';
+        }
+
+        ~connectedPlayer()
+        {
+            delete [] color;
+        }
     };
 
     public:

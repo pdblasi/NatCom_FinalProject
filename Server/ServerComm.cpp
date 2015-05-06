@@ -12,6 +12,8 @@ ServerComm::~ServerComm()
 
 void* ServerComm::readPacket(int insock, char &msgType)
 {
+    cout << "Packet Read!" << endl;
+
     int read, readTot;
     int msgLen;
     char *msg;

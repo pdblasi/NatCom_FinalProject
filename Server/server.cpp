@@ -15,7 +15,7 @@ int main()
 
     ServerEngine engine(&comm);
 
-
+    while(!engine.generateNextStep());
     
     return 0;
 }

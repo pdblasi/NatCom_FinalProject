@@ -36,6 +36,8 @@ bool ServerLobby::acceptMode()
                NULL,
                NULL);
 
+        cout << "Do read!" << endl;
+
         checkFds();
         
         if(FD_ISSET(acceptSock, &m_tempreadfds) == true)
@@ -74,9 +76,10 @@ void ServerLobby::checkFds()
         if(FD_ISSET(*player, &m_tempreadfds))
         {
             errno = 0;
-            bool curReady[1];
-            int res = recv(*player, (void*)curReady, 1, 0);
-            if(res == 1)
+            char msgType;
+            bool *curReady = (bool*)m_comm->readPacket(*player, msgType);
+
+            if(curReady != NULL)
             {
                 cout << "Readiness read!" << endl;
                 p->ready = curReady[0];
@@ -84,8 +87,10 @@ void ServerLobby::checkFds()
                     cout << " Ready." << endl;
                 else
                     cout << " No-go." << endl;
+
+                //delete [] curReady;
             }
-            else if(res == 0 || errno != EWOULDBLOCK)
+            else
             {
                 reorder = true;
                 cout << "Player lost!" << endl;
@@ -110,6 +115,10 @@ void ServerLobby::checkFds()
 
 string ServerLobby::getPlayerList()
 {
+    static string colors[] = {"#FF0000", "#00FF00", "#0000FF",
+                              "#FFFF00", "#00FFFF", "#FF00FF",
+                              "#F00FF0", "#0FF00F", "#99AA88",
+                              "#FF55AA"};
     string list = "[";
     auto player = m_players.begin();
 
@@ -120,11 +129,15 @@ string ServerLobby::getPlayerList()
 
         list += "(";
         list += to_string(i);
-        list += ",";
-//        list += player->color;
-        list += ")";
+        list += ",\"";
+        if(player->color[0] == '\0')
+            strncpy(player->color, colors[i].c_str(), 8);
+        list += string(player->color);
+        list += "\")";
     }
     list += "]";
+
+    cout << list << endl;
 
     return list;
 }
