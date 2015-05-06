@@ -36,7 +36,7 @@ class MainPage(Frame):
     def onJoinServerPressed(self):
         self.ip_input_window = Toplevel(self.parent)
         self.ip_input = IPInput(self)
-        self.parent.parent.eval('tk::PlaceWindow %s center' % self.parent.parent.winfo_pathname(self.ip_input_window.winfo_id()) )
+        #self.parent.parent.eval('tk::PlaceWindow %s center' % self.parent.parent.winfo_pathname(self.ip_input_window.winfo_id()) )
 
     def joinServer(self, ip):
         self.parent.goToServerLobby(ip)

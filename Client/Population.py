@@ -5,7 +5,7 @@ from threading import Lock
 class EA:
     MUTATION = 0.01
     POPULATION_GROWTH_FACTOR = 0.005
-    FOCUS_WEIGHT = 1/10000
+    FOCUS_WEIGHT = 1
 
     PRED_v_PREY = 0
     LONE_v_HERD = 1
@@ -41,8 +41,8 @@ class EA:
         self.age()
         self.evaluate()
         d_pop = pop_size - len(self.population)
-        #child_count = int(d_pop + self.POPULATION_GROWTH_FACTOR * pop_size * (1 + random.gauss(0, (self.stats[self.REP_v_LIF] + 5) / 10)))
-        self.create_children(self.select(d_pop*2))
+        child_count = int(d_pop + self.POPULATION_GROWTH_FACTOR * pop_size * (1 + random.gauss(0, (-self.stats[self.REP_v_LIF] + 5) / 10)))
+        self.create_children(self.select(child_count*2))
         self.calculate_stats()
 
     def age(self):
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     import time
     import matplotlib.pyplot as plot
 
-    ea = EA(10000)
+    ea = EA(5000)
     ea.focus = [1, 2, 3, 4, 5]
     stats = []
     timings = []
@@ -144,5 +144,5 @@ if __name__ == '__main__':
     svs, = plot.plot(x, [l[2] for l in stats], label='Strength vs Speed')
     rvl, = plot.plot(x, [l[3] for l in stats], label='Reproduction vs Lifespan')
     s, = plot.plot(x, [l[4] for l in stats], label='Senses')
-    plot.figlegend([pvp, lvh, svs, rvl, s], ['Pred vs Prey', 'Lone vs Herd', 'Strength vs Speed', 'Reproduction vs Lifespan', 'Senses'], 'upper center')
+    plot.figlegend([pvp, lvh, svs, rvl, s], ['Pred vs Prey', 'Lone vs Herd', 'Strength vs Speed', 'Reproduction vs Lifespan', 'Senses'], 'lower center')
     plot.show()

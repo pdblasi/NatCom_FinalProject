@@ -8,4 +8,17 @@ class ServerLobby(Frame):
         self.pack(anchor='c', expand=True)
 
     def initUI(self):
-        Label(self, text="WE'RE IN THE LOBBY!").grid()
+        self.status_text = Label(self, text='Waiting for players to ready up...')
+        self.ready_button = Button(self, text='Toggle Ready', command=self.ready)
+        self.status_text.grid(row=0, column=0)
+        self.ready_button.grid(row=1, column=0)
+        pass
+
+    def ready(self):
+        self.parent.client.toggle_ready()
+
+    def onPlayerUpdates(self, updates):
+        pass
+
+    def onReady(self, countdown):
+        pass

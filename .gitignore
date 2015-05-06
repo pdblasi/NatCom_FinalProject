@@ -1,2 +1,3 @@
 Presentation/build/presentation.pdf
 *.o
+*.pyc
