@@ -48,6 +48,8 @@ class ServerEngine
     void removeCritter(int playerNum, position critter);
     bool trialByCombat(const player &predator, const player &prey);
 
+    void loadConfigData();
+
     struct square
     {
         int x, y;

@@ -7,6 +7,7 @@ ServerEngine::ServerEngine()
     srand(time(NULL));
 
     generateMap();
+    loadConfigData();
     DEBUG_SETUP();
 }
 
@@ -449,5 +450,49 @@ void ServerEngine::stepMapsForward()
                 CRITTER_MAP[i][j][k] = CRITTER_MAP_NEXT[i][j][k];
             }
         }
+    }
+}
+
+void ServerEngine::loadConfigData()
+{
+    ifstream fin("server.config");
+
+    MAP_HEIGHT = 1000;
+    MAP_WIDTH = 1000;
+
+    if(fin.is_open())
+    {
+        string line;
+
+        while(getline(fin, line))
+        {
+            line.erase(remove(line.begin(), line.end(), ' '), line.end());
+            replace(line.begin(), line.end(), '=', ' ');
+
+            int pos = line.find("=");
+            string prop = line.substr(0,pos);
+            pos++;
+            string val = line.substr(pos, line.length()-pos);
+
+            if(prop == "mapheight")
+            {
+                MAP_HEIGHT = atoi(val.c_str());
+            }
+            else if(prop == "mapwidth")
+            {
+                MAP_WIDTH = atoi(val.c_str());
+            }
+        }
+
+        fin.close();
+    }
+    else
+    {
+        ofstream fout("server.config");
+
+        fout << "mapheight=" << MAP_HEIGHT << endl;
+        fout << "mapwidth=" << MAP_WIDTH << endl;
+
+        fout.close();
     }
 }
