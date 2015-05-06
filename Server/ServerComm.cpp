@@ -66,7 +66,7 @@ void ServerComm::sendPacket(int outsock, char msgCode, int msgLen, const void *m
     totSent = 0;
     while(totSent < msgLen)
     {
-        sent = send(outsock, message+totSent, msgLen-totSent, 0);
+        sent = send(outsock, &(((char*)message)[totSent]), msgLen-totSent, 0);
         if(sent < 1)
             return;
         totSent += sent;

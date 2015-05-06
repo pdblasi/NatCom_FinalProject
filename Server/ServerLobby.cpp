@@ -51,13 +51,9 @@ bool ServerLobby::acceptMode()
             if(newSock >= m_numfds)
                 m_numfds = newSock + 1;
 
-            int num = m_comm->numPlayers() - 1;
-            send(newSock, &num, 4, 0);
-            //string num = to_string(m_comm->numPlayers()-1);
-            //send(newSock, num.c_str(), num.length(), 0);
+            string num = to_string(m_comm->numPlayers() - 1);
+            m_comm->sendPacket(newSock, HEADER_TYPE_INDEX, num.length(), num.c_str());
         }
-
-        sleep(0.1);
     } while(!checkIfReady() || !tryCountdown());
 
     close(acceptSock);
@@ -67,6 +63,7 @@ bool ServerLobby::acceptMode()
 
 void ServerLobby::checkFds()
 {
+    bool reorder = false;
     auto player = m_comm->playerList();
     int i = 0;
     auto p = m_players.begin();
@@ -90,6 +87,7 @@ void ServerLobby::checkFds()
             }
             else if(res == 0 || errno != EWOULDBLOCK)
             {
+                reorder = true;
                 cout << "Player lost!" << endl;
                 player = m_comm->removePlayerSocket(*player);
                 prep = m_players.erase_after(prep);
@@ -102,6 +100,11 @@ void ServerLobby::checkFds()
         p++;
         prep++;
         i++;
+    }
+
+    if(reorder)
+    {
+        // TODO: Send out new indices
     }
 }
 
