@@ -51,13 +51,13 @@ bool ServerEngine::generateNextStep()
     int winner = checkWinner();
     if(winner != -1)
     {
-        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, 4, (void*)&winner);
+        string win = to_string(winner);
+        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, win.length(), (void*)win.c_str());
 
         return true;
     }
 
     sendPlayerUpdates();
-    // TODO: Broadcast player data
 
     return false;
 }
