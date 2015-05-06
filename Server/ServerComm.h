@@ -11,9 +11,9 @@ class ServerComm
 {
     public:
     void* getBytes(int insock, int numBytes);
-    void sendBytes(int outsock, void *bytes, int numBytes);
+    void sendBytes(int outsock, const void *bytes, int numBytes);
 
-    void broadcastBytes(void *bytes, int numBytes);
+    void broadcastBytes(const void *bytes, int numBytes);
 
     void addPlayerSocket(int playerSock);
     void removePlayerSocket(int playerSock);

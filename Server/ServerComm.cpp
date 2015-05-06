@@ -21,7 +21,7 @@ void* ServerComm::getBytes(int insock, int numBytes)
     return buffer;
 }
 
-void ServerComm::sendBytes(int outsock, void *bytes, int numBytes)
+void ServerComm::sendBytes(int outsock, const void *bytes, int numBytes)
 {
     char *sendBuffer = (char*)bytes;
     int result = 0, sent = 0;
@@ -34,7 +34,7 @@ void ServerComm::sendBytes(int outsock, void *bytes, int numBytes)
     } while(sent < numBytes && (result > 0 || errno == EWOULDBLOCK));
 }
 
-void ServerComm::broadcastBytes(void *bytes, int numBytes)
+void ServerComm::broadcastBytes(const void *bytes, int numBytes)
 {
     for(auto player : m_players)
     {
@@ -44,7 +44,17 @@ void ServerComm::broadcastBytes(void *bytes, int numBytes)
 
 void ServerComm::addPlayerSocket(int playerSock)
 {
-    m_players.push_front(playerSock);
+    forward_list<int>::iterator it = m_players.begin();
+
+    if(it == m_players.end())
+    {
+        m_players.push_front(playerSock);
+    }
+    else
+    {
+        while(next(it) != m_players.end()) it++;
+        m_players.insert_after(it, playerSock);
+    }
 }
 
 void ServerComm::removePlayerSocket(int playerSock)
