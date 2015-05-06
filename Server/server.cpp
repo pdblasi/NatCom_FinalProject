@@ -11,11 +11,12 @@ int main()
     ServerComm comm;
     ServerLobby lobby(&comm);
 
-    lobby.acceptMode();
+    if(lobby.acceptMode())
+    {
+        ServerEngine engine(&comm);
 
-    ServerEngine engine(&comm);
-
-    while(!engine.generateNextStep());
+        while(!engine.generateNextStep());
+    }
     
     return 0;
 }

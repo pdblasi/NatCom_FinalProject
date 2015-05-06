@@ -57,7 +57,7 @@ class Client:
                         if self.onReady != None:
                             self.onReady(countdown)
                         if countdown == 0:
-                            thread.start_new_thread(self._startEngine(), ())
+                            thread.start_new_thread(self._startEngine, ())
                     elif type == self.PLAYER_UPDATES:
                         updates = eval(message)
                         self.player_index = updates[0]
@@ -96,7 +96,7 @@ class Client:
             d_pop = len(self.population.population) - d_pop
             stats = self.population.stats[:]
             stats.insert(0, d_pop)
-            message = ' '.join(stats)
+            message = "{0} {1} {2} {3} {4}".format(stats[0], stats[1], stats[2], stats[3], stats[4], stats[5])
             self.messages.put([3, len(message), message])
 
 

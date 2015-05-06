@@ -5,6 +5,14 @@ ServerLobby::ServerLobby(ServerComm *comm)
     m_comm = comm;
 }
 
+ServerLobby::~ServerLobby()
+{
+    for(auto p : m_players)
+    {
+        delete [] p.color;
+    }
+}
+
 bool ServerLobby::acceptMode()
 {
     // Create variables
@@ -18,8 +26,16 @@ bool ServerLobby::acceptMode()
     serv_addr.sin_port = htons(35015);
 
     // Bind to accept socket & set to listening mode
-    bind(acceptSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-    listen(acceptSock, 10);
+    if(bind(acceptSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) != 0)
+    {
+        cout << "Unable to bind socket. " << errno << endl;
+        return false;
+    }
+    if(listen(acceptSock, 10) != 0)
+    {
+        cout << "Unable to listen on socket. " << errno << endl;
+        return false;
+    }
 
     m_numfds = acceptSock+1;
     FD_SET(acceptSock, &m_readfds);
@@ -77,28 +93,31 @@ void ServerLobby::checkFds()
         {
             errno = 0;
             char msgType;
-            bool *curReady = (bool*)m_comm->readPacket(*player, msgType);
+            int msgLen;
+            void *msg = m_comm->readPacket(*player, msgType, msgLen);
 
-            if(curReady != NULL)
-            {
-                cout << "Readiness read!" << endl;
-                p->ready = curReady[0];
-                if(curReady[0])
-                    cout << " Ready." << endl;
-                else
-                    cout << " No-go." << endl;
-
-                //delete [] curReady;
-            }
-            else
+            if(msg == NULL)
             {
                 reorder = true;
-                cout << "Player lost!" << endl;
                 player = m_comm->removePlayerSocket(*player);
                 prep = m_players.erase_after(prep);
                 p = next(prep);
                 continue;
             }
+
+            reorder = true;
+
+            if(msgType == HEADER_TYPE_READY)
+            {
+                bool *curReady = (bool*)msg;
+                p->ready = curReady[0];
+            }
+            else if(msgType == HEADER_TYPE_PLAYER_UPDATES)
+            {
+                strncpy(p->color, (char*)msg, msgLen);
+            }
+
+            delete [] (char*)msg;
         }
 
         player++;
@@ -130,8 +149,11 @@ string ServerLobby::getPlayerList()
         list += "(";
         list += to_string(i);
         list += ",\"";
-        if(player->color[0] == '\0')
+        if(player->color == NULL)
+        {
+            player->color = new char[8];
             strncpy(player->color, colors[i].c_str(), 8);
+        }
         list += string(player->color);
         list += "\")";
     }

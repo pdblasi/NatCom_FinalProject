@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
+#include <iostream>
 #include "Globals.h"
 #include "player.h"
 #include "ServerComm.h"
@@ -27,7 +28,7 @@ class ServerEngine
         ServerComm *m_comm;
         forward_list<player> PLAYERS;
         int NUM_PLAYERS;
-        int m_totalPopulation;
+        int m_totalPopulation = 0;
         // Tracks valid positions on the map
         bool **VALID_MAP;
         // Tracks each position's pheromones for each player

@@ -10,35 +10,36 @@ ServerComm::~ServerComm()
 
 // ~~~ Message Transmission Protocol ~~~
 
-void* ServerComm::readPacket(int insock, char &msgType)
+void* ServerComm::readPacket(int insock, char &msgType, int &msgLen)
 {
-    cout << "Packet Read!" << endl;
-
     int read, readTot;
-    int msgLen;
+    char type[1];
+    char length[4];
     char *msg;
 
     // Read msg type
-    read = recv(insock, (void*)&msgType, 1, 0);
+    read = recv(insock, (void*)type, 1, 0);
     if(read < 1)
         return NULL;
+    msgType = type[0];
 
     // Read msg length
     readTot = 0;
     while(readTot < 4)
     {
-        read = recv(insock, (void*)&msgLen, 4, 0);
+        read = recv(insock, length+readTot, 4-readTot, 0);
         if(read < 1)
             return NULL;
         readTot += read;
     }
+    msgLen = *((int*)length);
 
     // Read msg
     readTot = 0;
     msg = new char[msgLen];
     while(readTot < msgLen)
     {
-        read = recv(insock, (void*)&(msg[readTot]), msgLen-readTot, 0);
+        read = recv(insock, msg+readTot, msgLen-readTot, 0);
         if(read < 1)
         {
             delete [] msg;
@@ -50,7 +51,7 @@ void* ServerComm::readPacket(int insock, char &msgType)
     return msg;
 }
 
-void ServerComm::sendPacket(int outsock, char msgCode, int msgLen, const void *message)
+void ServerComm::sendPacket(int outsock, const char &msgCode, const int &msgLen, const void *message)
 {
     int sent, totSent;
 
@@ -59,7 +60,7 @@ void ServerComm::sendPacket(int outsock, char msgCode, int msgLen, const void *m
     totSent = 0;
     while(totSent < 4)
     {
-        sent = send(outsock, (void*)&(((char*)&msgLen)[totSent]), 4-totSent, 0);
+        sent = send(outsock, (char*)&msgLen+totSent, 4-totSent, 0);
         if(sent < 1)
             return;
         totSent += sent;
@@ -68,14 +69,14 @@ void ServerComm::sendPacket(int outsock, char msgCode, int msgLen, const void *m
     totSent = 0;
     while(totSent < msgLen)
     {
-        sent = send(outsock, &(((char*)message)[totSent]), msgLen-totSent, 0);
+        sent = send(outsock, (char*)message+totSent, msgLen-totSent, 0);
         if(sent < 1)
             return;
         totSent += sent;
     }
 }
 
-void ServerComm::broadcastPacket(char msgCode, int msgLen, const void *message)
+void ServerComm::broadcastPacket(const char &msgCode, const int &msgLen, const void *message)
 {
     for(auto player : m_players)
     {

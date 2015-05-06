@@ -9,8 +9,8 @@ ServerEngine::ServerEngine(ServerComm *comm)
     m_comm = comm;
     NUM_PLAYERS = m_comm->numPlayers();
 
-    generateMap();
     loadConfigData();
+    generateMap();
     DEBUG_SETUP();
 }
 
@@ -42,11 +42,17 @@ ServerEngine::~ServerEngine()
 
 bool ServerEngine::generateNextStep()
 {
+    cout << "Start!" << endl;
     updatePlayerStatuses();
+    cout << "Update..." << endl;
     decayPheromones();
+    cout << "Update..." << endl;
     moveCritters();
+    cout << "Update..." << endl;
     handleConflicts();
+    cout << "Update..." << endl;
     stepMapsForward();
+    cout << "Update..." << endl;
 
     int winner = checkWinner();
     if(winner != -1)
@@ -72,6 +78,7 @@ int ServerEngine::checkWinner()
     {
         if(float(player.tot_pop) / m_totalPopulation > 0.799)
         {
+            cout << "Winner! " << i << endl;
             return i;
         }
 
@@ -115,37 +122,36 @@ void ServerEngine::updatePlayerStatuses()
     while(i < NUM_PLAYERS)
     {
         char msgType;
-        int *l = (int*)m_comm->readPacket(*it, msgType);
+        int msgLen;
+        void *msg = m_comm->readPacket(*it, msgType, msgLen);
 
-        if(l != NULL)
+        if(msg == NULL)
         {
-            int len = *l;
-            delete [] l;
-
-            char *m = (char*)m_comm->readPacket(*it, msgType);
-
-            if(m != NULL)
-            {
-                char *msg = new char[len+1];
-                strncpy(msg, m, len);
-                delete [] m;
-                msg[len] = 0;
-                string message(msg);
-                delete [] msg;
-
-                stringstream strm;
-                strm.str(message);
-                strm >> p->pop_change
-                    >> p->herd_mentality
-                    >> p->prey_mentality
-                    >> p->flight_mentality
-                    >> p->lifespan
-                    >> p->vision;
-
-                p->tot_pop += p->pop_change;
-                m_totalPopulation += p->pop_change;
-            }
+            it++;
+            p++;
+            i++;
+            continue;
         }
+
+        char *stats = new char[msgLen+1];
+        strncpy(stats, (char*)msg, msgLen);
+        stats[msgLen] = 0;
+        string playerStats(stats);
+        stringstream strm;
+        strm.str(playerStats);
+
+        strm >> p->pop_change
+            >> p->herd_mentality
+            >> p->prey_mentality
+            >> p->flight_mentality
+            >> p->lifespan
+            >> p->vision;
+
+        p->tot_pop += p->pop_change;
+        m_totalPopulation += p->pop_change;
+
+        delete [] (char*)msg;
+        delete [] stats;
 
         it++;
         p++;

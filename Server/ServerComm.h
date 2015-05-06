@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <iostream>
 
 using namespace std;
 
@@ -14,9 +13,9 @@ class ServerComm
     public:
     ~ServerComm();
 
-    void* readPacket(int insock, char &msgType);
-    void sendPacket(int outsock, char msgCode, int msgLen, const void *message);
-    void broadcastPacket(char msgCode, int msgLen, const void *message);
+    void* readPacket(int insock, char &msgType, int &msgLen);
+    void sendPacket(int outsock, const char &msgCode, const int &msgLen, const void *message);
+    void broadcastPacket(const char &msgCode, const int &msgLen, const void *message);
 
     void addPlayerSocket(int playerSock);
     forward_list<int>::iterator removePlayerSocket(int playerSock);

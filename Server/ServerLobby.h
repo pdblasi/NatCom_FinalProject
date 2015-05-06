@@ -21,28 +21,17 @@ using namespace std;
 
 class ServerLobby
 {
-    struct connectedPlayer
-    {
-        bool ready;
-        char *color;
-
-        connectedPlayer()
-        {
-            ready = false;
-            color = new char[8];
-            color[0] = '\0';
-        }
-
-        ~connectedPlayer()
-        {
-            delete [] color;
-        }
-    };
-
     public:
     ServerLobby(ServerComm *comm);
+    ~ServerLobby();
 
     bool acceptMode();
+
+    struct connectedPlayer
+    {
+        bool ready = false;
+        char *color = NULL;
+    };
 
     private:
     ServerComm *m_comm;
