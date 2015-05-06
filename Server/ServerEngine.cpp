@@ -56,8 +56,7 @@ bool ServerEngine::generateNextStep()
         return true;
     }
 
-    // TODO: Send population updates
-    // TODO: Broadcast map
+    sendPlayerUpdates();
     // TODO: Broadcast player data
 
     return false;
@@ -115,14 +114,15 @@ void ServerEngine::updatePlayerStatuses()
 
     while(i < NUM_PLAYERS)
     {
-        int *l = (int*)m_comm->getBytes(*it, 4);
+        char msgType;
+        int *l = (int*)m_comm->readPacket(*it, msgType);
 
         if(l != NULL)
         {
             int len = *l;
             delete [] l;
 
-            char *m = (char*)m_comm->getBytes(*it, len);
+            char *m = (char*)m_comm->readPacket(*it, msgType);
 
             if(m != NULL)
             {
@@ -153,13 +153,59 @@ void ServerEngine::updatePlayerStatuses()
     }
 }
 
+string ServerEngine::buildMap()
+{
+    string map = "[";
+    for(int i = 0; i < MAP_HEIGHT; i++)
+    {
+        if(i > 0)
+            map += ",";
+
+        map += "[";
+        for(int j = 0; j < MAP_WIDTH; j++)
+        {
+            if(j > 0)
+                map += ",";
+
+            if(!VALID_MAP[i][j])
+            {
+                map += "-2";
+                continue;
+            }
+
+            int max = 0;
+            int midx = -1;
+
+            for(int k = 0; k < NUM_PLAYERS; k++)
+            {
+                if(CRITTER_MAP[i][j][k] > max)
+                {
+                    midx = k;
+                    max = CRITTER_MAP[i][j][k];
+                }
+            }
+
+            map += to_string(midx);
+        }
+        map += "]";
+    }
+    map += "]";
+
+    return map;
+}
+
 void ServerEngine::sendPlayerUpdates()
 {
+    string map = buildMap();
+
     auto it = m_comm->playerList();
     for(auto player : PLAYERS)
     {
         player.tot_pop += player.pop_change;
-        m_comm->sendBytes(*it, (void*)&(player.tot_pop), 4);
+
+        string msg = "[" + to_string(player.tot_pop) + "," + map + "]";
+
+        m_comm->sendPacket(*it, HEADER_TYPE_ENGINE, msg.length(), (void*)msg.c_str());
 
         it++;
     }

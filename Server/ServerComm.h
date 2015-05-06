@@ -13,13 +13,12 @@ class ServerComm
     public:
     ~ServerComm();
 
-    void* getBytes(int insock, int numBytes);
-    void sendBytes(int outsock, const void *bytes, int numBytes);
-
-    void broadcastBytes(const void *bytes, int numBytes);
+    void* readPacket(int insock, char &msgType);
+    void sendPacket(int outsock, char msgCode, int msgLen, const void *message);
+    void broadcastPacket(char msgCode, int msgLen, const void *message);
 
     void addPlayerSocket(int playerSock);
-    void removePlayerSocket(int playerSock);
+    forward_list<int>::iterator removePlayerSocket(int playerSock);
     forward_list<int>::iterator playerList();
     int numPlayers();
 

@@ -12,27 +12,35 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "Globals.h"
 #include "ServerComm.h"
 
 using namespace std;
 
 class ServerLobby
 {
+    struct connectedPlayer
+    {
+        bool ready;
+        char *color;
+    };
+
     public:
     ServerLobby(ServerComm *comm);
 
     bool acceptMode();
-    bool tryCountdown();
-    bool checkIfReady();
 
     private:
     ServerComm *m_comm;
-    forward_list<bool> readiness;
+    forward_list<connectedPlayer> m_players;
     int m_numfds;
     fd_set m_readfds;
     fd_set m_tempreadfds;
 
-    void addPlayerReadiness();
+    bool tryCountdown();
+    bool checkIfReady();
+    void addPlayer();
     void checkFds();
 };
 

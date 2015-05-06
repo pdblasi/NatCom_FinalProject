@@ -46,10 +46,15 @@ bool ServerLobby::acceptMode()
 
             cout << "New Player!" << endl;
             m_comm->addPlayerSocket(newSock);
-            addPlayerReadiness();
+            addPlayer();
             FD_SET(newSock, &m_readfds);
             if(newSock >= m_numfds)
                 m_numfds = newSock + 1;
+
+            int num = m_comm->numPlayers() - 1;
+            send(newSock, &num, 4, 0);
+            //string num = to_string(m_comm->numPlayers()-1);
+            //send(newSock, num.c_str(), num.length(), 0);
         }
 
         sleep(0.1);
@@ -64,8 +69,9 @@ void ServerLobby::checkFds()
 {
     auto player = m_comm->playerList();
     int i = 0;
-    auto ready = readiness.begin();
-    auto tracker = readiness.before_begin();
+    auto p = m_players.begin();
+    auto prep = m_players.before_begin();
+
     while(i < m_comm->numPlayers())
     {
         if(FD_ISSET(*player, &m_tempreadfds))
@@ -76,8 +82,8 @@ void ServerLobby::checkFds()
             if(res == 1)
             {
                 cout << "Readiness read!" << endl;
-                *ready = curReady[0];
-                if(*ready)
+                p->ready = curReady[0];
+                if(curReady[0])
                     cout << " Ready." << endl;
                 else
                     cout << " No-go." << endl;
@@ -85,18 +91,17 @@ void ServerLobby::checkFds()
             else if(res == 0 || errno != EWOULDBLOCK)
             {
                 cout << "Player lost!" << endl;
-                m_comm->removePlayerSocket(*player);
-                readiness.erase_after(tracker);
-
-                ready = readiness.begin();
-                player = m_comm->playerList();
+                player = m_comm->removePlayerSocket(*player);
+                prep = m_players.erase_after(prep);
+                p = next(prep);
                 continue;
             }
         }
 
         player++;
+        p++;
+        prep++;
         i++;
-        ready++;
     }
 }
 
@@ -109,12 +114,11 @@ bool ServerLobby::tryCountdown()
     tv.tv_sec = 0;
     tv.tv_usec = 0;
 
-
     do
     {
         timer--;
         string time = to_string(timer);
-        m_comm->broadcastBytes(time.c_str(), time.length());
+        m_comm->broadcastPacket(HEADER_TYPE_READY, time.length(), time.c_str());
 
         m_tempreadfds = m_readfds;
         sleep(1);
@@ -137,25 +141,25 @@ bool ServerLobby::checkIfReady()
 
     bool result = true;
 
-    for(auto ready : readiness)
+    for(auto p : m_players)
     {
-        result &= ready;
+        result &= p.ready;
     }
 
     return result;
 }
 
-void ServerLobby::addPlayerReadiness()
+void ServerLobby::addPlayer()
 {
-    auto it = readiness.begin();
+    auto it = m_players.begin();
 
-    if(it == readiness.end())
+    if(it == m_players.end())
     {
-        readiness.push_front(false);
+        m_players.emplace_front();
     }
     else
     {
-        while(next(it) != readiness.end()) it++;
-        readiness.insert_after(it, false);
+        while(next(it) != m_players.end()) it++;
+        m_players.emplace_after(it);
     }
 }

@@ -10,15 +10,12 @@ int main()
 {
     ServerComm comm;
     ServerLobby lobby(&comm);
-    
-    if(lobby.acceptMode())
-    {
-        cout << "Woohoo!" << endl;
-    }
-    else
-    {
-        cout << "Hmm..." << endl;
-    }
 
+    lobby.acceptMode();
+
+    ServerEngine engine(&comm);
+
+
+    
     return 0;
 }

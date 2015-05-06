@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
+#include "Globals.h"
 #include "player.h"
 #include "ServerComm.h"
 
@@ -62,6 +63,8 @@ class ServerEngine
     int checkWinner();
 
     void loadConfigData();
+
+    string buildMap();
 
     struct square
     {

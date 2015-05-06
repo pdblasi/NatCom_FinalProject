@@ -8,47 +8,80 @@ ServerComm::~ServerComm()
     }
 }
 
-void* ServerComm::getBytes(int insock, int numBytes)
+// ~~~ Message Transmission Protocol ~~~
+
+void* ServerComm::readPacket(int insock, char &msgType)
 {
-    char *buffer = new char[numBytes];
-    int result = 0, recvd = 0;
+    int read, readTot;
+    int msgLen;
+    char *msg;
 
-    do
-    {
-        errno = 0;
-        result = recv(insock, (void*)buffer, numBytes, 0);
-        recvd += result;
-    } while(recvd < numBytes && (result > 0 || errno == EWOULDBLOCK));
+    // Read msg type
+    read = recv(insock, (void*)&msgType, 1, 0);
+    if(read < 1)
+        return NULL;
 
-    if(recvd != numBytes)
+    // Read msg length
+    readTot = 0;
+    while(readTot < 4)
     {
-        delete [] buffer;
-        buffer = NULL;
+        read = recv(insock, (void*)&msgLen, 4, 0);
+        if(read < 1)
+            return NULL;
+        readTot += read;
     }
 
-    return buffer;
-}
-
-void ServerComm::sendBytes(int outsock, const void *bytes, int numBytes)
-{
-    char *sendBuffer = (char*)bytes;
-    int result = 0, sent = 0;
-
-    do
+    // Read msg
+    readTot = 0;
+    msg = new char[msgLen];
+    while(readTot < msgLen)
     {
-        errno = 0;
-        result = send(outsock, &sendBuffer[sent], numBytes-sent, 0);
-        sent += result;
-    } while(sent < numBytes && (result > 0 || errno == EWOULDBLOCK));
+        read = recv(insock, (void*)&(msg[readTot]), msgLen-readTot, 0);
+        if(read < 1)
+        {
+            delete [] msg;
+            return NULL;
+        }
+        readTot += read;
+    }
+
+    return msg;
 }
 
-void ServerComm::broadcastBytes(const void *bytes, int numBytes)
+void ServerComm::sendPacket(int outsock, char msgCode, int msgLen, const void *message)
+{
+    int sent, totSent;
+
+    send(outsock, (void*)&msgCode, 1, 0);
+
+    totSent = 0;
+    while(totSent < 4)
+    {
+        sent = send(outsock, (void*)&(((char*)&msgLen)[totSent]), 4-totSent, 0);
+        if(sent < 1)
+            return;
+        totSent += sent;
+    }
+
+    totSent = 0;
+    while(totSent < msgLen)
+    {
+        sent = send(outsock, message+totSent, msgLen-totSent, 0);
+        if(sent < 1)
+            return;
+        totSent += sent;
+    }
+}
+
+void ServerComm::broadcastPacket(char msgCode, int msgLen, const void *message)
 {
     for(auto player : m_players)
     {
-        sendBytes(player, bytes, numBytes);
+        sendPacket(player, msgCode, msgLen, message);
     }
 }
+
+// ~~~ Socket Tracking Methods ~~~
 
 void ServerComm::addPlayerSocket(int playerSock)
 {
@@ -66,10 +99,18 @@ void ServerComm::addPlayerSocket(int playerSock)
     m_numPlayers++;
 }
 
-void ServerComm::removePlayerSocket(int playerSock)
+forward_list<int>::iterator ServerComm::removePlayerSocket(int playerSock)
 {
-    m_players.remove(playerSock);
     m_numPlayers--;
+    
+    auto erit = m_players.before_begin();
+
+    while(*(next(erit)) != playerSock)
+    {
+        erit++;
+    }
+
+    return m_players.erase_after(erit);
 }
 
 forward_list<int>::iterator ServerComm::playerList()
