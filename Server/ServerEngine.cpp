@@ -194,16 +194,39 @@ string ServerEngine::buildMap()
     return map;
 }
 
+string ServerEngine::buildStats()
+{
+    string stats = "[";
+    bool comma = false;
+
+    for(auto player : PLAYERS)
+    {
+        if(comma)
+            stats += ",";
+        comma = true;
+        stats += "[";
+        stats += to_string(player.prey_mentality) + ",";
+        stats += to_string(player.herd_mentality) + ",";
+        stats += to_string(player.flight_mentality) + ",";
+        stats += to_string(player.lifespan) + ",";
+        stats += to_string(player.vision) + "]";
+    }
+
+    stats += "]";
+    return stats;
+}
+
 void ServerEngine::sendPlayerUpdates()
 {
     string map = buildMap();
+    string stats = buildStats();
 
     auto it = m_comm->playerList();
     for(auto player : PLAYERS)
     {
         player.tot_pop += player.pop_change;
 
-        string msg = "[" + to_string(player.tot_pop) + "," + map + "]";
+        string msg = "[" + to_string(player.tot_pop) + "," + map + "," + stats + "]";
 
         m_comm->sendPacket(*it, HEADER_TYPE_ENGINE, msg.length(), (void*)msg.c_str());
 

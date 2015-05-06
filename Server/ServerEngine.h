@@ -65,6 +65,7 @@ class ServerEngine
     void loadConfigData();
 
     string buildMap();
+    string buildStats();
 
     struct square
     {
