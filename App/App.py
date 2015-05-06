@@ -1,5 +1,6 @@
 from Tkinter import *
 from MainPage import *
+from Game import *
 from ServerLobby import *
 from Client import *
 
@@ -18,3 +19,5 @@ class App(Frame):
         self.pack(anchor='c', expand=True)
 
     def goToGame(self):
+        self.content.destroy()
+        self.content = Game(self)

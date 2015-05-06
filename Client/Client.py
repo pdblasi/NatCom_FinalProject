@@ -67,7 +67,7 @@ class Client:
                     elif type == self.ENGINE:
                         engine = eval(engine)
                         if self.onEngine != None:
-                            self.onEngine(message)
+                            self.onEngine(engine)
                     elif type == self.VICTORY:
                         self.finished = true
                         winner = int(message)

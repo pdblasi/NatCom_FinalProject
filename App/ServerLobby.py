@@ -5,6 +5,7 @@ class ServerLobby(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.initUI()
+        self.parent.client.start(self.onReady, self.onPlayerUpdates, None, None, None)
         self.pack(anchor='c', expand=True)
 
     def initUI(self):
@@ -21,4 +22,6 @@ class ServerLobby(Frame):
         pass
 
     def onReady(self, countdown):
-        pass
+        self.status_text['text'] = "Starting game in {0}...".format(countdown)
+        if countdown == 0:
+            self.parent.goToGame()
