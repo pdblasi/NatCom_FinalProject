@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
+#include "Globals.h"
 
 #ifdef _WIN32
     #include <winsock2.h>
