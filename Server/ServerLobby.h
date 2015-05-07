@@ -5,7 +5,6 @@
 
 #include <fcntl.h>
 #include <forward_list>
-#include <netinet/in.h>
 #include <string>
 #include <string.h>
 #include <strings.h>
@@ -14,6 +13,7 @@
 #ifdef _WIN32
     #include <winsock2.h>
 #else
+    #include <netinet/in.h>
     #include <sys/socket.h>
     #include <sys/time.h>
     #include <sys/types.h>
