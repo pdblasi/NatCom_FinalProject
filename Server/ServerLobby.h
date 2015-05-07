@@ -7,8 +7,6 @@
 #include <forward_list>
 #include <string>
 #include <string.h>
-#include <strings.h>
-#include <unistd.h>
 #include "Globals.h"
 
 #ifdef _WIN32
@@ -19,6 +17,8 @@
     typedef int socklen_t;
     #define SLEEP 1000
 #else
+	#include <strings.h>
+	#include <unistd.h>
     #include <netinet/in.h>
     #include <sys/socket.h>
     #include <sys/time.h>

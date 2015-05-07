@@ -1,5 +1,15 @@
 #include "ServerLobby.h"
 
+#ifdef _WIN32
+void bzero(char *arr, size_t size)
+{
+	for (unsigned int i = 0; i < size; i++)
+	{
+		arr[i] = 0;
+	}
+}
+#endif
+
 ServerLobby::ServerLobby(ServerComm *comm)
 {
     m_comm = comm;
@@ -38,6 +48,7 @@ bool ServerLobby::acceptMode()
     }
 
     m_numfds = acceptSock+1;
+	FD_ZERO(&m_readfds);
     FD_SET(acceptSock, &m_readfds);
 
     // Accept incoming connections!
@@ -56,7 +67,7 @@ bool ServerLobby::acceptMode()
 
         checkFds();
         
-        if(FD_ISSET(acceptSock, &m_tempreadfds) == true)
+        if(FD_ISSET(acceptSock, &m_tempreadfds) != 0)
         {
             int newSock = accept(acceptSock,
                                  (struct sockaddr*)&cli_addr,
