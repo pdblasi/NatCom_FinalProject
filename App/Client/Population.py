@@ -5,7 +5,7 @@ from threading import Lock
 class EA:
     MUTATION = 0.01
     POPULATION_GROWTH_FACTOR = 0.005
-    FOCUS_WEIGHT = 1
+    FOCUS_WEIGHT = 1e-20
 
     PRED_v_PREY = 0
     LONE_v_HERD = 1
@@ -118,16 +118,26 @@ if __name__ == '__main__':
     import numpy as np
     import time
     import matplotlib.pyplot as plot
+    
+    rng = 1000
+    
+    def new_focus():
+        return [random.randint(-5,5),
+                random.randint(-5,5),
+                random.randint(-5,5),
+                random.randint(-5,5),
+                random.randint(-5,5) ]
 
-    ea = EA(5000)
-    ea.focus = [1, 2, 3, 4, 5]
+    ea = EA(1500)
     stats = []
     timings = []
-    for i in range(100):
+    for i in range(rng):
+        if i == 0 or i % (rng // 10) == 0:
+            ea.focus = new_focus()
+            print ea.focus
         start = time.time()
         ea.next_generation()
         end = time.time()
-        print i
         stats.append(ea.stats[:])
         timings.append(end - start)
 
@@ -138,7 +148,9 @@ if __name__ == '__main__':
     print "Average iteration time:", sum(timings) / len(timings)
 
     x = range(len(stats))
-    plot.ylim(-5, 5)
+    plot.ylim(-5.5, 5.5)
+    plot.yticks(range(-5, 6))
+    plot.xticks(range(0, rng+1, rng // 10))
     pvp, = plot.plot(x, [l[0] for l in stats], label='Pred vs Prey')
     lvh, = plot.plot(x, [l[1] for l in stats], label='Lone vs Herd')
     svs, = plot.plot(x, [l[2] for l in stats], label='Strength vs Speed')
