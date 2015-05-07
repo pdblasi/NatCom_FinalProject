@@ -8,3 +8,4 @@ Presentation/build/presentation.pdf
 *.toc
 *.aux
 *.pdf
+*.gz
