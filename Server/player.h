@@ -25,6 +25,8 @@ struct player
     forward_list<position> critter_positions;
     int pop_change;
     int tot_pop = 0;
+    float spawn_x;
+    float spawn_y;
 
     float herd_mentality; // -5 to +5
     float prey_mentality; // -5 to +5
