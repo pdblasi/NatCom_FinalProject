@@ -12,9 +12,9 @@
 
 #ifdef _WIN32
     #include <sstream>
-    #include <windows.h>
     #include <winsock2.h>
-    typedef unsigned int socklen_t;
+    #include <windows.h>
+    typedef int socklen_t;
     #define SLEEP 1000
 #else
     #include <netinet/in.h>
