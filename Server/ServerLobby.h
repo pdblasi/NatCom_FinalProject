@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #ifdef _WIN32
+    #include <sstream>
     #include <windows.h>
     #include <winsock2.h>
     typedef unsigned int socklen_t;
@@ -60,7 +61,7 @@ class ServerLobby
 #ifdef _WIN32
     void bzero(char *arr, size_t size)
     {
-        for(int i = 0; i < size; i++)
+        for(unsigned int i = 0; i < size; i++)
         {
             arr[i] = 0;
         }
