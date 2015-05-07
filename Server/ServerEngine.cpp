@@ -99,8 +99,9 @@ void ServerEngine::DEBUG_SETUP()
         it->spawn_y = rand() % (MAP_WIDTH - 10) + 1;
         it->spawn_x = rand() % (MAP_HEIGHT - 10) + 1;
         auto crit = it->critter_positions.before_begin();
+        int size = rand() % 2000 + 1500;
 
-        for(int j = 0; j < 3000; j++)
+        for(int j = 0; j < size; j++)
         {
             int x = it->spawn_x + rand() % 10;
             int y = it->spawn_y + rand() % 10;
