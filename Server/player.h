@@ -2,6 +2,7 @@
 #define __PLAYER_H__
 
 #include <forward_list>
+#include "Globals.h"
 
 using namespace std;
 

@@ -9,13 +9,13 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include "Globals.h"
 
 #ifdef _WIN32
     #include <sstream>
     #include <winsock2.h>
     #include <winbase.h>
     #include <windows.h>
-    #include <synchapi.h>
     typedef int socklen_t;
     #define SLEEP 1000
 #else
@@ -59,25 +59,5 @@ class ServerLobby
     string getPlayerList();
     void updatePlayerIndices();
 };
-
-#ifdef _WIN32
-    void bzero(char *arr, size_t size)
-    {
-        for(unsigned int i = 0; i < size; i++)
-        {
-            arr[i] = 0;
-        }
-    }
-
-    string to_string(int num)
-    {
-        stringstream strm;
-        strm.str("");
-
-        strm << num;
-
-        return strm.str();
-    }
-#endif
 
 #endif
