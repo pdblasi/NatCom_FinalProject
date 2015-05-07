@@ -34,7 +34,7 @@ void* ServerComm::readPacket(int insock, char &msgType, int &msgLen)
     char *msg;
 
     // Read msg type
-    read = recv(insock, (void*)type, 1, 0);
+    read = recv(insock, type, 1, 0);
     if(read < 1)
         return NULL;
     msgType = type[0];
