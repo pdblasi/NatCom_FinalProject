@@ -2,10 +2,12 @@ from Tkinter import *
 from IPInput import *
 from tkMessageBox import *
 from subprocess import call
+from ThreadSafeFrame import *
+import thread
 
-class MainPage(Frame):
+class MainPage(ThreadSafeFrame):
     def __init__(self, parent):
-        Frame.__init__(self, parent)
+        ThreadSafeFrame.__init__(self, parent)
         self.parent = parent
         self.initUI()
         self.pack(anchor='c', expand=True)
@@ -22,21 +24,21 @@ class MainPage(Frame):
         self.join_server_button.grid(row=3, pady=10, sticky="we")
 
     def startGame(self):
-        if self.startServer():
-            self.joinServer("localhost")
+        self.startServer(lambda: self.joinServer("localhost"))
 
-    def startServer(self):
+    def startServer(self, onSuccess):
+        thread.start_new_thread(self.__startServer, ())
+        onSuccess()
+
+    def __startServer(self):
         try:
-            call(["../Server/server", ""])
-            return True
+            call(["./Server/server", ""])
         except:
-            showerror(message="Server has not been compiled, or could not be found in ../Server")
-            return False
+            self.run_on_UI_thread(lambda: showerror(message="Server has not been compiled, or could not be found in ./Server"))
 
     def onJoinServerPressed(self):
         self.ip_input_window = Toplevel(self.parent)
         self.ip_input = IPInput(self)
-        #self.parent.parent.eval('tk::PlaceWindow %s center' % self.parent.parent.winfo_pathname(self.ip_input_window.winfo_id()) )
 
     def joinServer(self, ip):
         self.parent.goToServerLobby(ip)

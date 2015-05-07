@@ -5,12 +5,12 @@ import struct
 from Population import *
 from socket import *
 from ctypes import *
-from select import select
 
 class Client:
     PORT = 35015
     HEADER = 4
     TYPE = 1
+    BUFFER = 1024
 
     READY = 0
     PLAYER_UPDATES = 1
@@ -33,7 +33,7 @@ class Client:
         self.onPlayerUpdate = onPlayerUpdate
         self.onEngine = onEngine
         self.onVictory = onVictory
-        thread.start_new_thread(self._messageHandler, ())
+        thread.start_new_thread(self.__messageHandler, ())
 
     def close(self):
         self.socket.close()
@@ -45,13 +45,22 @@ class Client:
     def change_color(self, color):
         self.messages.put([1, len(color), color])
 
-    def _messageHandler(self):
+    def __readMessage(self, data):
+        type, = struct.unpack('b', data)
+        length, = struct.unpack('i', self.socket.recv(self.HEADER))
+        message = ""
+        while length > 0:
+            temp = self.socket.recv(min(length, self.BUFFER))
+            length -= len(temp)
+            message += temp
+        return type, message
+
+    def __messageHandler(self):
         while not self.finished:
             try:
-                data = self.socket.recv(self.TYPE)
-                if len(data) > 0:
-                    type, = struct.unpack('b', data)
-                    message = self.socket.recv(struct.unpack('i', self.socket.recv(self.HEADER))[0])
+                type = self.socket.recv(self.TYPE)
+                if len(type) > 0:
+                    type, message = self.__readMessage(type)
                     if type == self.READY:
                         countdown = int(message)
                         if self.onReady != None:
@@ -65,33 +74,34 @@ class Client:
                         if self.onPlayerUpdate != None:
                             self.onPlayerUpdate(updates)
                     elif type == self.ENGINE:
-                        engine = eval(engine)
+                        engine = eval(message)
                         if self.onEngine != None:
                             self.onEngine(engine)
                     elif type == self.VICTORY:
-                        self.finished = true
+                        self.finished = True
                         winner = int(message)
                         if self.onVictory != None:
                             if winner == self.player_index:
                                 self.onVictory("You won!")
                             else:
-                                self.onVictory("Player {0} won!".format(message + 1))
-            except:
+                                self.onVictory("Player {0} won!".format(winner + 1))
+            except error:
+                pass
+            except Exception, e:
+                print e
                 pass
             try:
-                if not self.messages.empty():
-                    message = self.messages.get()
+                message = self.messages.get_nowait()
 
-                    self.socket.send(bytearray(c_byte(message[0])))
-                    self.socket.send(bytearray(c_int(message[1])))
-                    self.socket.send(message[2])
+                self.socket.send(bytearray(c_byte(message[0])))
+                self.socket.send(bytearray(c_int(message[1])))
+                self.socket.send(message[2])
             except:
                 pass
             time.sleep(0.1)
 
     def _startEngine(self):
         while not self.finished:
-            print "Producing another generation."
             d_pop = len(self.population.population)
             self.population.next_generation()
             d_pop = len(self.population.population) - d_pop
