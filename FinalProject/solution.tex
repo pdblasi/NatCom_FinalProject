@@ -151,8 +151,64 @@ In this phase, the server became three large components.
     % Paul! It got complex here, didn't it?
 
 \section{Phase 4 - Testing and Review}
-	% Not here quite yet.
 As of this writing, the server and client are not a complete application. The
 algorithms and underlying network components are functioning, but the
-inter-program communication is not up and running. \\
+inter-program communication is not up and running -- there are issues with the
+actual data transmission. \\
 Thus, the result of this project venture is untested.
+
+Fortunately, the algorithms themselves are still testable, though not with a
+direct interface.
+
+\subsection{The Server}
+To test the server, Jaysen modified the server engine to support dumping its
+current player state, to include a list of critter positions to file. He then
+used gnuplot to map out these positions on a map, to get an idea of what the
+critters were doing. \\
+Initially, he tried outputting after a small number of steps. He found that the
+critters did not explore the map very quickly, so he opted to output every 5,000
+iterations, up to 25,000. This created some interesting graphs!
+
+\begin{figure}
+\centering
+    \includegraphics[width=5cm,height=5cm]{Trial1-0.png}
+    \includegraphics[width=5cm,height=5cm]{Trial1-5000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial1-10000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial1-15000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial1-20000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial1-25000.png}
+    \caption{Results from first interesting trial}
+\end{figure}
+
+\begin{figure}
+\centering
+    \includegraphics[width=5cm,height=5cm]{Trial2-0.png}
+    \includegraphics[width=5cm,height=5cm]{Trial2-5000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial2-10000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial2-15000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial2-20000.png}
+    \includegraphics[width=5cm,height=5cm]{Trial2-25000.png}
+    \caption{Results from second interesting trial}
+\end{figure}
+
+Note that, with the lack of a connected interface, these results depended on values
+that were either set randomly or determined beforehand. In the interest of the
+project, Jaysen did not devote his time to gathering data on this algorithm,
+instead working closely with Paul in an attempt to get the interface functioning.\\
+Therefore, these results are unfortunately far from a comprehensive analysis of
+each of the properties of the agents.
+
+There are some things that are noteworthy in these results, however. It appears
+that a species' odds of survival are highly dependent on proximity to other species
+-- note in the first trial that blue is the least advantaged in this situation, as
+it is equidistant from green and purple and stuck between them. The others either
+have further distance from some neighbors, or fewer neighbors. The advantage of
+fewer neighbors is evident in the progress of red and purple, as their populations
+boom.
+
+In the second trial, it's worth noting that red had a very high predatory instinct,
+which means that it sought out other species -- meanwhile, the others had a
+relatively low predatory instinct, so they tried to avoid others. This worked to
+the advantage of the ones that tried to avoid other species.
+
+\subsection{The Client}
