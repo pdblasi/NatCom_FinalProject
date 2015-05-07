@@ -7,7 +7,7 @@ ServerEngine::ServerEngine(ServerComm *comm)
     srand(time(NULL));
 
     m_comm = comm;
-    //NUM_PLAYERS = m_comm->numPlayers();
+    NUM_PLAYERS = m_comm->numPlayers();
     NUM_PLAYERS = 4;
 
     loadConfigData();
@@ -43,7 +43,7 @@ ServerEngine::~ServerEngine()
 
 bool ServerEngine::generateNextStep()
 {
-//    updatePlayerStatuses();
+    updatePlayerStatuses();
     decayPheromones();
     moveCritters();
     handleConflicts();
@@ -53,12 +53,12 @@ bool ServerEngine::generateNextStep()
     if(winner != -1)
     {
         string win = to_string(winner);
-//        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, win.length(), (void*)win.c_str());
+        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, win.length(), (void*)win.c_str());
 
         return true;
     }
 
-//    sendPlayerUpdates();
+    sendPlayerUpdates();
 
     return false;
 }
@@ -109,9 +109,11 @@ int ServerEngine::checkWinner()
 void ServerEngine::DEBUG_SETUP()
 {
     auto it = PLAYERS.before_begin();
+    cout << "Players:" << endl;
 
     for(int i = 0; i < NUM_PLAYERS; i++)
     {
+        cout << " " << i << ":" << endl;
         it = PLAYERS.emplace_after(it);
 
         it->spawn_y = rand() % (MAP_WIDTH - 11) + 1;
@@ -127,11 +129,11 @@ void ServerEngine::DEBUG_SETUP()
             crit = it->critter_positions.emplace_after(crit, x, y);
         }
 
-        it->herd_mentality = rand()%11-5;
-        it->prey_mentality = rand()%11-5;
+        cout << "  Herd: " << (it->herd_mentality = rand()%11-5) << endl;
+        cout << "  Prey: " << (it->prey_mentality = rand()%11-5) << endl;
         it->tot_pop = size;
         it->pop_change = 0;
-        it->vision = 5.0f;
+        cout << "  Sens: " << (it->vision = 5.0f) << endl;
 //        it->vision = (rand() % 5000 + 1) / 1000;
         m_totalPopulation += size;
     }

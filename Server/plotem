@@ -3,10 +3,40 @@ set xrange [0:500]
 set yrange [0:500]
 set term png
 
-set output "24900state.png"
-plot "0state24900.dat" using 1:2 title "Player 1", \
-     "1state24900.dat" using 1:2 title "Player 2", \
-     "2state24900.dat" using 1:2 title "Player 3", \
-     "3state24900.dat" using 1:2 title "Player 4"
+set output "0state.png"
+plot "0state0.dat" using 1:2 title "Player 1", \
+     "1state0.dat" using 1:2 title "Player 2", \
+     "2state0.dat" using 1:2 title "Player 3", \
+     "3state0.dat" using 1:2 title "Player 4"
+
+set output "5000state.png"
+plot "0state5000.dat" using 1:2 title "Player 1", \
+     "1state5000.dat" using 1:2 title "Player 2", \
+     "2state5000.dat" using 1:2 title "Player 3", \
+     "3state5000.dat" using 1:2 title "Player 4"
+
+set output "10000state.png"
+plot "0state10000.dat" using 1:2 title "Player 1", \
+     "1state10000.dat" using 1:2 title "Player 2", \
+     "2state10000.dat" using 1:2 title "Player 3", \
+     "3state10000.dat" using 1:2 title "Player 4"
+
+set output "15000state.png"
+plot "0state15000.dat" using 1:2 title "Player 1", \
+     "1state15000.dat" using 1:2 title "Player 2", \
+     "2state15000.dat" using 1:2 title "Player 3", \
+     "3state15000.dat" using 1:2 title "Player 4"
+
+set output "20000state.png"
+plot "0state20000.dat" using 1:2 title "Player 1", \
+     "1state20000.dat" using 1:2 title "Player 2", \
+     "2state20000.dat" using 1:2 title "Player 3", \
+     "3state20000.dat" using 1:2 title "Player 4"
+
+set output "25000state.png"
+plot "0state25000.dat" using 1:2 title "Player 1", \
+     "1state25000.dat" using 1:2 title "Player 2", \
+     "2state25000.dat" using 1:2 title "Player 3", \
+     "3state25000.dat" using 1:2 title "Player 4"
 
 replot
