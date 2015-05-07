@@ -71,7 +71,7 @@ void ServerComm::sendPacket(int outsock, const char &msgCode, const int &msgLen,
 {
     int sent, totSent;
 
-    send(outsock, (void*)&msgCode, 1, 0);
+    send(outsock, &msgCode, 1, 0);
 
     totSent = 0;
     while(totSent < 4)
