@@ -8,6 +8,76 @@
 	%  server from algorithm to network, and
 	%  client from GUI to algorithm to network.
 
+When starting out on this project, all that we knew is that we wanted to make a
+game based in Natural Computing. We realized very early that an evolutionary
+algorithm would be essential to create dynamicism in the game and ensure it was not
+a simple, repetitive program. However, an evolutionary algorithm alone would not be
+quite enough. We played around with the idea of putting the animals on a grid, to
+allow them to interact with one another and explore the area. \\
+Fortunately, we had this realization at about the time that the class was covering
+Ant Colonies. The idea of pheromones was quickly snatched up.
+
+When the class covered Cellular Automata, we realized that what we were building
+would work very well in this sort of architecture. Our ``CA" cheated a little;
+rather than depending solely on neighboring positions and states, we look at
+neighborhoods to find competitors and randomly decide what happens after that,
+based on a simple rule set and the players' settings.
+
+At about the same time, the idea of splitting the project into a client-server
+architecture began to hold more promise. With this sort of design, we could
+distribute the individual EAs amongst the clients, with each being responsible for
+evolving its own creatures. The server, meanwhile, would poll their statistics and
+run the grid simulation to determine whether any of the creatures had conflict.
+
+Once we decided our architecture, we moved on to considering how to build the 
+client and server. Since they were communicating over the network, they need not
+use the same language. We discussed the possibilities at length, initially 
+considering Python for everything, but worrying that it would not be quite fast
+enough for the server's purpose. Thus, we decided that C++ would better suit the
+server, since it had no graphical requirements and would need as much speed as it
+could get. The client, however, would be better off with visuals, so Python is the
+language we chose for that. (We did consider whether the EA would move quickly
+enough; in the end, we decided that we would try, and convert to C++ later if need
+be.) \\
+With the basic design considerations in place, we broke up the work -- Jaysen
+offered to build the server, and Paul was happy to work on the client.
+
+Finally, before any actual development could begin, we needed to know what our
+program would actually do. Paul already had many ideas for the program. The rules
+would focus entirely on the low-level agents in the simulation: they would have
+certain mentalities and abilities, and act randomly with weights based on their
+attributes.
+\begin{description}
+    \item[Prey v. Predator] This mentality determines how likely an agent is to
+        seek out locations that contain other species.
+    \item[Group v. Lone] This mentality determines how likely an agent is to seek
+        out locations that contain their own species.
+    \item[Strength v. Speed] This ability determines which reaction an agent will
+        give in conflict, and how likely they are to succeed with it.
+    \item[Lifetime v. Reproduction] This attribute determines whether a species is
+        more likely to live a longer time, or to produce more children.
+    \item[Senses] This attribute determines how likely an agent is to see another
+        agent on the grid.
+\end{description}
+Meanwhile, Jaysen had several ideas for the implementation of the game.
+\begin{description}
+    \item[Pheromones] An idea borrowed from Ant Colonies, pheromones would be used
+        to track where agents had been in the grid. This would play in with the
+        different mentalities involving movement based on other agents.
+    \item[Roulette] An idea borrowed from Evolutionary Algorithms, a roulette
+        selection would be the tool of choice for determining the results of
+        conflicts. Each agent would be weighted accordingly, by their relevant
+        attribute.
+    \item[Grid Tracking] Directly used from Cellular Automata, the idea of tracking
+        agents in a common grid is almost a necessity for neighborhood checking.
+    \item[Agent Tracking] In addition to CA's mapping, we will use the idea of
+        tracking individual agents from Particle Swarms. This will increase the
+        memory space requirements for the program, but on a server model, speed is
+        more important.
+\end{description}
+
+Thus, we were ready to begin constructing the project.
+
 \section{Phase 2 - Prototype $\alpha$}
 	% Talk about initial steps taken in design.
 	% Server was a mish-mash of code to get a running ``CA''
