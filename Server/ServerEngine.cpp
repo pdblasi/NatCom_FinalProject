@@ -96,20 +96,22 @@ void ServerEngine::DEBUG_SETUP()
     {
         it = PLAYERS.emplace_after(it);
 
-        int hoff = rand() % (MAP_WIDTH - 10) + 1;
-        int voff = rand() % (MAP_HEIGHT - 10) + 1;
+        it->spawn_y = rand() % (MAP_WIDTH - 10) + 1;
+        it->spawn_x = rand() % (MAP_HEIGHT - 10) + 1;
         auto crit = it->critter_positions.before_begin();
 
         for(int j = 0; j < 3000; j++)
         {
-            int x = voff + rand() % 10;
-            int y = hoff + rand() % 10;
+            int x = it->spawn_x + rand() % 10;
+            int y = it->spawn_y + rand() % 10;
 
             crit = it->critter_positions.emplace_after(crit, x, y);
         }
 
         it->herd_mentality = rand()%11-5;
         it->prey_mentality = rand()%11-5;
+        it->tot_pop = 3000;
+        it->pop_change = 0;
     }
 }
 
@@ -152,6 +154,34 @@ void ServerEngine::updatePlayerStatuses()
 
         delete [] (char*)msg;
         delete [] stats;
+
+        if(p->pop_change > 0)
+        {
+            auto cr = p->critter_positions.before_begin();
+            for(int j = 0; j < p->pop_change; j++)
+            {
+                int x = p->spawn_x + rand() % 10;
+                int y = p->spawn_y + rand() % 10;
+
+                p->critter_positions.emplace_after(cr, x, y);
+            }
+        }
+        else if(p->pop_change < 0)
+        {
+            if(p->tot_pop > 0)
+            {
+                for(auto cr = next(p->critter_positions.begin(), p->tot_pop);
+                    cr != p->critter_positions.end();
+                    cr = p->critter_positions.erase_after(cr))
+                {
+                    CRITTER_MAP[cr->x][cr->y][i]--;
+                }
+            }
+            else
+            {
+                p->critter_positions.clear();
+            }
+        }
 
         it++;
         p++;
