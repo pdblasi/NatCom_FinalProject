@@ -134,7 +134,7 @@ void ServerEngine::updatePlayerStatuses()
         }
 
         char *stats = new char[msgLen+1];
-        strncpy(stats, (char*)msg, msgLen);
+        strncpy_s(stats, msgLen+1, (char*)msg, msgLen);
         stats[msgLen] = 0;
         string playerStats(stats);
         stringstream strm;
