@@ -13,7 +13,7 @@
 #ifdef _WIN32
     #include <sstream>
     #include <winsock2.h>
-    #include <windows.h>
+    #include <WinBase.h>
     typedef int socklen_t;
     #define SLEEP 1000
 #else
