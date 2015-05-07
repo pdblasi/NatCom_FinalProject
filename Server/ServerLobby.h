@@ -13,7 +13,9 @@
 #ifdef _WIN32
     #include <sstream>
     #include <winsock2.h>
-    #include <WinBase.h>
+    #include <winbase.h>
+    #include <windows.h>
+    #include <synchapi.h>
     typedef int socklen_t;
     #define SLEEP 1000
 #else
