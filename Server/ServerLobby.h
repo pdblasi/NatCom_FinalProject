@@ -9,10 +9,15 @@
 #include <string>
 #include <string.h>
 #include <strings.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+#else
+    #include <sys/socket.h>
+    #include <sys/time.h>
+    #include <sys/types.h>
+#endif
 
 #include "Globals.h"
 #include "ServerComm.h"

@@ -3,14 +3,20 @@
 
 #include <forward_list>
 #include <stdlib.h>
-#include <sys/socket.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+#else
+    #include <sys/socket.h>
+#endif
 
 using namespace std;
 
 class ServerComm
 {
     public:
+    ServerComm();
     ~ServerComm();
 
     void* readPacket(int insock, char &msgType, int &msgLen);

@@ -1,10 +1,26 @@
 #include "ServerComm.h"
 
+ServerComm::ServerComm()
+{
+    #ifdef _WIN32
+        WSADATA wsaData;
+        if(WSAStartup(MAKEWORD(2,0), &wsaData) != 0)
+        {
+            cout << "WSAStartup failed." << endl;
+            exit(1);
+        }
+    #endif
+}
+
 ServerComm::~ServerComm()
 {
     for(auto player : m_players)
     {
-        close(player);
+        #ifdef _WIN32
+            closesocket(player);
+        #else
+            close(player);
+        #endif
     }
 }
 

@@ -74,7 +74,11 @@ bool ServerLobby::acceptMode()
         }
     } while(!checkIfReady() || !tryCountdown());
 
-    close(acceptSock);
+    #ifdef _WIN32
+        closesocket(acceptSock);
+    #else
+        close(acceptSock);
+    #endif
 
     return true;
 }
