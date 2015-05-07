@@ -1,0 +1,12 @@
+unset key
+set xrange [0:500]
+set yrange [0:500]
+set term png
+
+set output "2900state.png"
+plot "0state2900.dat" using 1:2 title "Player 1", \
+     "1state2900.dat" using 1:2 title "Player 2", \
+     "2state2900.dat" using 1:2 title "Player 3", \
+     "3state2900.dat" using 1:2 title "Player 4"
+
+replot

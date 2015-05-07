@@ -7,7 +7,8 @@ ServerEngine::ServerEngine(ServerComm *comm)
     srand(time(NULL));
 
     m_comm = comm;
-    NUM_PLAYERS = m_comm->numPlayers();
+    //NUM_PLAYERS = m_comm->numPlayers();
+    NUM_PLAYERS = 4;
 
     loadConfigData();
     generateMap();
@@ -42,30 +43,47 @@ ServerEngine::~ServerEngine()
 
 bool ServerEngine::generateNextStep()
 {
-    cout << "Start!" << endl;
-    updatePlayerStatuses();
-    cout << "Update..." << endl;
+//    updatePlayerStatuses();
     decayPheromones();
-    cout << "Update..." << endl;
     moveCritters();
-    cout << "Update..." << endl;
     handleConflicts();
-    cout << "Update..." << endl;
     stepMapsForward();
-    cout << "Update..." << endl;
 
     int winner = checkWinner();
     if(winner != -1)
     {
         string win = to_string(winner);
-        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, win.length(), (void*)win.c_str());
+//        m_comm->broadcastPacket(HEADER_TYPE_VICTORY, win.length(), (void*)win.c_str());
 
         return true;
     }
 
-    sendPlayerUpdates();
+//    sendPlayerUpdates();
 
     return false;
+}
+
+void ServerEngine::printCurrentState(int n)
+{
+    cout << "Dumping state" << endl;
+    cout << " Populations:" << endl;
+    string filename = "state" + to_string(n) + ".dat";
+    int i = 0;
+
+    for(auto player : PLAYERS)
+    {
+        string fname = to_string(i) + filename;
+        ofstream fout(fname.c_str());
+
+        for(auto critter : player.critter_positions)
+        {
+            fout << critter.x << ' ' << critter.y << endl;
+        }
+
+        fout.close();
+        i++;
+        cout << "  " << i << ": " << player.tot_pop << endl;
+    }
 }
 
 // ~~~ Private Methods ~~~
@@ -96,8 +114,8 @@ void ServerEngine::DEBUG_SETUP()
     {
         it = PLAYERS.emplace_after(it);
 
-        it->spawn_y = rand() % (MAP_WIDTH - 10) + 1;
-        it->spawn_x = rand() % (MAP_HEIGHT - 10) + 1;
+        it->spawn_y = rand() % (MAP_WIDTH - 11) + 1;
+        it->spawn_x = rand() % (MAP_HEIGHT - 11) + 1;
         auto crit = it->critter_positions.before_begin();
         int size = rand() % 2000 + 1500;
 
@@ -111,8 +129,11 @@ void ServerEngine::DEBUG_SETUP()
 
         it->herd_mentality = rand()%11-5;
         it->prey_mentality = rand()%11-5;
-        it->tot_pop = 3000;
+        it->tot_pop = size;
         it->pop_change = 0;
+        it->vision = 5.0f;
+//        it->vision = (rand() % 5000 + 1) / 1000;
+        m_totalPopulation += size;
     }
 }
 
@@ -261,8 +282,6 @@ void ServerEngine::sendPlayerUpdates()
     auto it = m_comm->playerList();
     for(auto player : PLAYERS)
     {
-        player.tot_pop += player.pop_change;
-
         string msg = "[" + to_string(player.tot_pop) + "," + map + "," + stats + "]";
 
         m_comm->sendPacket(*it, HEADER_TYPE_ENGINE, msg.length(), (void*)msg.c_str());
@@ -292,9 +311,8 @@ void ServerEngine::moveCritters()
         it != PLAYERS.end();
         it++)
     {
-        auto end = it->critter_positions.end();
         for(auto critter = it->critter_positions.begin();
-            critter != end;
+            critter != it->critter_positions.end();
             critter++)
         {
             moveCritter(*critter, it->herd_mentality, it->prey_mentality, playerNum);
@@ -445,18 +463,17 @@ void ServerEngine::handleConflicts()
         it != PLAYERS.end();
         it++)
     {
-        for(auto critter = it->critter_positions.begin();
-            critter != it->critter_positions.end();
-            critter++)
+        auto critter = it->critter_positions.begin();
+        while(critter != it->critter_positions.end())
         {
-            unsigned char *num_runs = CRITTER_MAP[critter->x][critter->y];
+            unsigned char *num_runs = CRITTER_MAP_NEXT[critter->x][critter->y];
 
             for(int i = playerNum+1; i < NUM_PLAYERS; i++)
             {
                 unsigned char us = num_runs[playerNum];
                 unsigned char them = num_runs[i];
 
-                if(them > 0)
+                if(them > 0 && us > 0)
                 {
                     unsigned char min;
                     if(them > us)
@@ -465,19 +482,21 @@ void ServerEngine::handleConflicts()
                         min = them;
 
                     auto it2 = next(it, i-playerNum);
+                    int iloss = 0, ploss = 0;
+                    position pos = *critter;
                     if(it2->prey_mentality > it->prey_mentality)
                     {
                         for(int n = 0; n < min; n++)
                         {
-                            if((rand()%1000)/1000.0 < it->vision)
+                            if((rand()%1000)/1000.0 < it->vision / 7)
                             {
                                 if(trialByCombat(*it, *it2))
                                 {
-                                    removeCritter(i, *critter);
+                                    iloss++;
                                 }
                                 else
                                 {
-                                    removeCritter(playerNum, *critter);
+                                    ploss++;
                                 }
                             }
                         }
@@ -486,21 +505,30 @@ void ServerEngine::handleConflicts()
                     {
                         for(int n = 0; n < min; n++)
                         {
-                            if((rand()%1000)/1000.0 < it->vision)
+                            if((rand()%1000)/1000.0 < it->vision / 7)
                             {
                                 if(trialByCombat(*it2, *it))
                                 {
-                                    removeCritter(playerNum, *critter);
+                                    ploss++;
                                 }
                                 else
                                 {
-                                    removeCritter(i, *critter);
+                                    iloss++;
                                 }
                             }
                         }
                     }
+                    
+                    for(int loss = 0; loss < iloss; loss++)
+                        removeCritter(i, pos);
+                    if(ploss > 0)
+                        critter = removeCritter(playerNum, pos);
+                        for(int loss = 1; loss < ploss; loss++)
+                            removeCritter(playerNum, pos);
                 }
             }
+            if(critter != it->critter_positions.end())
+                critter++;
         }
 
         playerNum++;
@@ -576,25 +604,29 @@ bool ServerEngine::trialByCombat(const player &predator, const player &prey)
     }
 }
 
-void ServerEngine::removeCritter(int playerNum, position critter)
+forward_list<position>::iterator ServerEngine::removeCritter(int playerNum, position critter)
 {
     auto player = PLAYERS.begin();
+    forward_list<position>::iterator result;
 
     advance(player, playerNum);
 
-    for(auto c1 = player->critter_positions.before_begin(),
-             c2 = player->critter_positions.begin();
-        c2 != player->critter_positions.end();
-        ++c1, ++c2)
+    player->pop_change--;
+    player->tot_pop--;
+    CRITTER_MAP_NEXT[critter.x][critter.y][playerNum]--;
+
+    for(auto cr = player->critter_positions.before_begin();
+        next(cr) != player->critter_positions.end();
+        cr++)
     {
-        if((*c2) == critter)
+        if(next(cr)->x == critter.x && next(cr)->y == critter.y)
         {
-            player->critter_positions.erase_after(c1);
+            result = player->critter_positions.erase_after(cr);
             break;
         }
     }
 
-    player->pop_change--;
+    return result;
 }
 
 void ServerEngine::generateMap()
@@ -653,8 +685,8 @@ void ServerEngine::loadConfigData()
 {
     ifstream fin("server.config");
 
-    MAP_HEIGHT = 1000;
-    MAP_WIDTH = 1000;
+    MAP_HEIGHT = 500;
+    MAP_WIDTH = 500;
 
     if(fin.is_open())
     {

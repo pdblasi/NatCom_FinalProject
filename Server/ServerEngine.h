@@ -23,6 +23,7 @@ class ServerEngine
     ServerEngine(ServerComm *comm);
     ~ServerEngine();
     bool generateNextStep();
+    void printCurrentState(int n);
     
     private:
         ServerComm *m_comm;
@@ -58,7 +59,7 @@ class ServerEngine
     int getMaxPheromones(int x, int y, int excludePlayer);
 
     void handleConflicts();
-    void removeCritter(int playerNum, position critter);
+    forward_list<position>::iterator removeCritter(int playerNum, position critter);
     bool trialByCombat(const player &predator, const player &prey);
 
     int checkWinner();
