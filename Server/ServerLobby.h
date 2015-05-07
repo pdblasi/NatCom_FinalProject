@@ -11,12 +11,16 @@
 #include <unistd.h>
 
 #ifdef _WIN32
+    #include <windows.h>
     #include <winsock2.h>
+    typedef unsigned int socklen_t;
+    #define SLEEP 1000
 #else
     #include <netinet/in.h>
     #include <sys/socket.h>
     #include <sys/time.h>
     #include <sys/types.h>
+    #define SLEEP 1
 #endif
 
 #include "Globals.h"
@@ -52,5 +56,25 @@ class ServerLobby
     string getPlayerList();
     void updatePlayerIndices();
 };
+
+#ifdef _WIN32
+    void bzero(char *arr, size_t size)
+    {
+        for(int i = 0; i < size; i++)
+        {
+            arr[i] = 0;
+        }
+    }
+
+    string to_string(int num)
+    {
+        stringstream strm;
+        strm.str("");
+
+        strm << num;
+
+        return strm.str();
+    }
+#endif
 
 #endif

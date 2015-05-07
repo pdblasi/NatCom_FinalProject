@@ -197,7 +197,7 @@ bool ServerLobby::tryCountdown()
         cout << time << endl;
 
         m_tempreadfds = m_readfds;
-        sleep(1);
+        sleep(SLEEP);
         int r = select(m_numfds,
                         &m_tempreadfds,
                         NULL,
