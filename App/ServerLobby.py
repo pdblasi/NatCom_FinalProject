@@ -1,8 +1,9 @@
 from Tkinter import *
+from ThreadSafeFrame import *
 
-class ServerLobby(Frame):
+class ServerLobby(ThreadSafeFrame):
     def __init__(self, parent):
-        Frame.__init__(self, parent)
+        ThreadSafeFrame.__init__(self, parent)
         self.parent = parent
         self.initUI()
         self.parent.client.start(self.onReady, self.onPlayerUpdates, None, None)
@@ -22,6 +23,9 @@ class ServerLobby(Frame):
         pass
 
     def onReady(self, countdown):
+        self.run_on_UI_thread(lambda: self.updateCountdown(countdown))
+
+    def updateCountdown(self, countdown):
         self.status_text['text'] = "Starting game in {0}...".format(countdown)
         if countdown == 0:
             self.parent.goToGame()
