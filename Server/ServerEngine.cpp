@@ -158,7 +158,11 @@ void ServerEngine::updatePlayerStatuses()
         }
 
         char *stats = new char[msgLen+1];
+        #ifdef _WIN32
         strncpy_s(stats, msgLen+1, (char*)msg, msgLen);
+        #else
+        strncpy(stats, (char*)msg, msgLen);
+        #endif
         stats[msgLen] = 0;
         string playerStats(stats);
         stringstream strm;

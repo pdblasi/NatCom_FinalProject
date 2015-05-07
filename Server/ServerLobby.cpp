@@ -129,7 +129,11 @@ void ServerLobby::checkFds()
             }
             else if(msgType == HEADER_TYPE_PLAYER_UPDATES)
             {
+                #ifdef _WIN32
                 strncpy_s(p->color, msgLen+1, (char*)msg, msgLen);
+                #else
+                strncpy(p->color, (char*)msg, msgLen);
+                #endif
             }
 
             delete [] (char*)msg;
@@ -167,7 +171,11 @@ string ServerLobby::getPlayerList()
         if(player->color == NULL)
         {
             player->color = new char[8];
+            #ifdef _WIN32
             strncpy_s(player->color, 9, colors[i].c_str(), 8);
+            #else
+            strncpy(player->color, colors[i].c_str(), 8);
+            #endif
         }
         list += string(player->color);
         list += "\")";
